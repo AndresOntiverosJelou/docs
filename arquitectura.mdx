@@ -4,42 +4,12 @@ description: "Cómo se conectan los productos de Marketplace con la plataforma J
 icon: "sitemap"
 ---
 
-<Note>Diagrama base. Ajusta nodos y conexiones a la arquitectura real.</Note>
+<Frame>
+  <img className="block dark:hidden" src="/images/diagramas/general-light.png" alt="Vista general del equipo Marketplace" />
+  <img className="hidden dark:block" src="/images/diagramas/general-dark.png" alt="Vista general del equipo Marketplace" />
+</Frame>
 
-```mermaid
-flowchart TB
-  subgraph Canales
-    WA[WhatsApp]
-    Web[Web / Widget]
-    Tel[Telefonía]
-  end
-
-  subgraph Plataforma Jelou
-    WF[Workflows]
-    Fn[Functions]
-  end
-
-  subgraph Marketplace
-    Mkt[Marketplace]
-    Shop[Ecommerce]
-    Pay[Pagos]
-    KYC[KYC]
-    Voice[Voice]
-    Int[Otras integraciones]
-  end
-
-  WA --> WF
-  Web --> WF
-  Tel --> Voice --> WF
-  WF --> Shop
-  WF --> Pay
-  WF --> KYC
-  WF --> Int
-  WF --> Mkt
-  Mkt --> Int
-  Shop --> Pay
-  Fn --> Int
-```
+<Tip>Versión interactiva: abre `diagramas/general.html` en tu navegador. La fuente es `diagramas/general.architecture.json`.</Tip>
 
 ## Dependencias entre productos
 

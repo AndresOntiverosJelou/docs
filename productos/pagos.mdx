@@ -24,21 +24,12 @@ El core tiene tres piezas:
 
 ## Arquitectura
 
-```mermaid
-flowchart LR
-  User[Usuario en WhatsApp] --> Flow[WhatsApp Flow / Workflow]
-  Flow -- "POST /pay (cifrado)" --> CPS[chat-payments-service<br/>AWS Lambda]
-  Flow -- "POST /generate-link-payment" --> CPS
-  CPS -- órdenes y credenciales --> JP[jelou-payments<br/>JelouPay API]
-  CPS --> PCI[PCI Vault<br/>tokenización]
-  JP --> DB[(MySQL 8)]
-  JP --> R[(Redis)]
-  CPS --> PX[payments-egress-proxy<br/>Squid]
-  JP --> PX
-  PX --> PSP[PSPs: Stripe, Datafast,<br/>Kushki, Culqi, ...]
-  PSP -- webhooks --> CPS
-  CPS -- webhookJelouPay --> JP
-```
+<Frame>
+  <img className="block dark:hidden" src="/images/diagramas/pagos-light.png" alt="Arquitectura del core de Pagos" />
+  <img className="hidden dark:block" src="/images/diagramas/pagos-dark.png" alt="Arquitectura del core de Pagos" />
+</Frame>
+
+<Tip>Versión interactiva: abre `diagramas/pagos.html` en tu navegador. La fuente es `diagramas/pagos.architecture.json`.</Tip>
 
 ### Flujos de pago
 

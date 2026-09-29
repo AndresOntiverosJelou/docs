@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Equipo Marketplace: vista general",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "wa",
+      "type": "external",
+      "label": "WhatsApp",
+      "sublabel": "mensajes y Flows",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "web",
+      "type": "external",
+      "label": "Web / Widget",
+      "sublabel": "chat web",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "tel",
+      "type": "external",
+      "label": "Telefonía",
+      "sublabel": "llamadas",
+      "pos": [
+        40,
+        480
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "voice",
+      "type": "backend",
+      "label": "Voice",
+      "sublabel": "agentes de voz",
+      "pos": [
+        320,
+        480
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "wf",
+      "type": "backend",
+      "label": "Workflows Jelou",
+      "sublabel": "bots y agentes IA",
+      "pos": [
+        320,
+        300
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "tag": "plataforma"
+    },
+    {
+      "id": "mkt",
+      "type": "backend",
+      "label": "Marketplace",
+      "sublabel": "apps MCP",
+      "pos": [
+        640,
+        60
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "shop",
+      "type": "backend",
+      "label": "Ecommerce",
+      "sublabel": "Jelou Shop",
+      "pos": [
+        640,
+        220
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "pay",
+      "type": "backend",
+      "label": "Pagos",
+      "sublabel": "JelouPay",
+      "pos": [
+        640,
+        380
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "kyc",
+      "type": "security",
+      "label": "KYC",
+      "sublabel": "biometría",
+      "pos": [
+        640,
+        540
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "int",
+      "type": "external",
+      "label": "Terceros",
+      "sublabel": "CRMs, ERPs, PSPs…",
+      "pos": [
+        940,
+        60
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "web-to-wf",
+      "from": "web",
+      "to": "wf",
+      "variant": "emphasis"
+    },
+    {
+      "id": "wa-to-wf",
+      "from": "wa",
+      "to": "wf",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "tel-to-voice",
+      "from": "tel",
+      "to": "voice"
+    },
+    {
+      "id": "voice-to-wf",
+      "from": "voice",
+      "to": "wf",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "wf-to-mkt",
+      "from": "wf",
+      "to": "mkt",
+      "label": "tools MCP",
+      "variant": "emphasis"
+    },
+    {
+      "id": "wf-to-shop",
+      "from": "wf",
+      "to": "shop"
+    },
+    {
+      "id": "wf-to-pay",
+      "from": "wf",
+      "to": "pay"
+    },
+    {
+      "id": "wf-to-kyc",
+      "from": "wf",
+      "to": "kyc"
+    },
+    {
+      "id": "shop-to-pay",
+      "from": "shop",
+      "to": "pay",
+      "label": "cobro de pedidos",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "mkt-to-int",
+      "from": "mkt",
+      "to": "int",
+      "label": "OAuth2 + API"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Entrada",
+      "items": [
+        "Los canales llegan a los Workflows de Jelou",
+        "Voice atiende la telefonía y delega en workflows"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Productos",
+      "items": [
+        "Cada producto expone capacidades que los workflows invocan",
+        "Ecommerce cobra sus pedidos a través de Pagos"
+      ]
+    }
+  ]
+}

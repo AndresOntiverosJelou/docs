@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Marketplace: apps MCP",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "apps",
+      "type": "frontend",
+      "label": "Jelou Apps",
+      "sublabel": "instalar y autorizar",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "gw",
+      "type": "cloud",
+      "label": "Api Gateway",
+      "sublabel": "Jelou",
+      "pos": [
+        320,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "ms",
+      "type": "backend",
+      "label": "marketplace-service",
+      "sublabel": "NestJS + Fastify",
+      "pos": [
+        600,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "MCP Gateway"
+    },
+    {
+      "id": "mcp",
+      "type": "backend",
+      "label": "MCP Apps",
+      "sublabel": "marketplace-apps",
+      "pos": [
+        880,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Deno"
+    },
+    {
+      "id": "ext",
+      "type": "external",
+      "label": "APIs de terceros",
+      "sublabel": "Shopify, HubSpot, Alegra…",
+      "pos": [
+        1160,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "cli",
+      "type": "frontend",
+      "label": "Jelou CLI",
+      "sublabel": "equipo de desarrollo",
+      "pos": [
+        880,
+        110
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "wfe",
+      "type": "backend",
+      "label": "Workflow Engine",
+      "sublabel": "ejecuta tools",
+      "pos": [
+        320,
+        490
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "oauth",
+      "type": "security",
+      "label": "OAuth2 / Pipedream",
+      "sublabel": "Google, Slack, Meta Ads…",
+      "pos": [
+        880,
+        490
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "MySQL 8 · Redis",
+      "sublabel": "catálogo e instalaciones",
+      "pos": [
+        600,
+        680
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Plataforma Jelou",
+      "wraps": [
+        "gw",
+        "ms",
+        "wfe",
+        "db"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Deno Subhosting",
+      "wraps": [
+        "mcp"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "apps-to-gw",
+      "from": "apps",
+      "to": "gw",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gw-to-ms",
+      "from": "gw",
+      "to": "ms",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ms-to-mcp",
+      "from": "ms",
+      "to": "mcp",
+      "label": "MCP",
+      "variant": "emphasis"
+    },
+    {
+      "id": "mcp-to-ext",
+      "from": "mcp",
+      "to": "ext",
+      "label": "API calls",
+      "variant": "emphasis"
+    },
+    {
+      "id": "wfe-to-ms",
+      "from": "wfe",
+      "to": "ms",
+      "label": "tool call",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "labelSegment": 0
+    },
+    {
+      "id": "ms-to-oauth",
+      "from": "ms",
+      "to": "oauth",
+      "label": "OAuth2",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "ms-to-db",
+      "from": "ms",
+      "to": "db",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "cli-deploy",
+      "from": "cli",
+      "to": "mcp",
+      "label": "mcp:deploy",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "cli-sync",
+      "from": "cli",
+      "to": "ms",
+      "label": "sync integrations",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Instalación",
+      "items": [
+        "El usuario instala una app desde Jelou Apps",
+        "Autoriza con OAuth2 (directo o vía Pipedream)"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Ejecución",
+      "items": [
+        "El Workflow Engine llama tools por el MCP Gateway",
+        "marketplace-service las ejecuta en el MCP de Deno"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Publicación",
+      "items": [
+        "jelou mcp:deploy genera una URL nueva por deploy",
+        "--sync-integrations sube integrations.json al catálogo"
+      ]
+    }
+  ]
+}

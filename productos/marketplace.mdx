@@ -21,19 +21,12 @@ Algunos de los MCP que viven en `marketplace-apps`: Alegra, AgendaPro, Bitrix, C
 
 ## Arquitectura
 
-```mermaid
-flowchart LR
-  Apps[Jelou Apps] --> GW[Api Gateway]
-  GW --> MS[marketplace-service]
-  WFE[Workflow Engine] -- MCP Gateway --> MS
-  MS --> DB[(MySQL 8)]
-  MS --> R[(Redis)]
-  MS --> OAuth[Proveedores OAuth2 / Pipedream]
-  MS --> MCP[MCP Apps en Deno]
-  MCP --> Ext[APIs de terceros]
-  CLI[Jelou CLI] -- deploy / sync --> MCP
-  CLI -- sync integrations --> MS
-```
+<Frame>
+  <img className="block dark:hidden" src="/images/diagramas/marketplace-light.png" alt="Arquitectura de Marketplace" />
+  <img className="hidden dark:block" src="/images/diagramas/marketplace-dark.png" alt="Arquitectura de Marketplace" />
+</Frame>
+
+<Tip>Versión interactiva: abre `diagramas/marketplace.html` en tu navegador. La fuente es `diagramas/marketplace.architecture.json`.</Tip>
 
 El usuario instala una app desde Jelou Apps y autoriza con OAuth2. Cuando un workflow necesita una tool, el workflow engine la invoca a través del MCP Gateway de `marketplace-service`. El gateway la ejecuta en el servidor MCP correspondiente, alojado en Deno.
 

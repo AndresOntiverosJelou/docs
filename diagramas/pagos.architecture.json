@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Pagos: core de JelouPay",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "flow",
+      "type": "external",
+      "label": "WhatsApp Flow",
+      "sublabel": "Workflow / bot",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "cps",
+      "type": "backend",
+      "label": "chat-payments-service",
+      "sublabel": "AWS Lambda",
+      "pos": [
+        300,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Node 22"
+    },
+    {
+      "id": "proxy",
+      "type": "security",
+      "label": "payments-egress-proxy",
+      "sublabel": "Squid allow-list",
+      "pos": [
+        580,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "psp",
+      "type": "external",
+      "label": "PSPs",
+      "sublabel": "Stripe, Datafast, Kushki…",
+      "pos": [
+        860,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "pci",
+      "type": "security",
+      "label": "PCI Vault",
+      "sublabel": "tokenización",
+      "pos": [
+        300,
+        110
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "jp",
+      "type": "backend",
+      "label": "jelou-payments",
+      "sublabel": "JelouPay API",
+      "pos": [
+        300,
+        490
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Laravel 12"
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "MySQL 8 · Redis",
+      "sublabel": "órdenes, cache y colas",
+      "pos": [
+        40,
+        490
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "AWS",
+      "wraps": [
+        "cps",
+        "proxy",
+        "jp",
+        "db"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "flow-to-cps",
+      "from": "flow",
+      "to": "cps",
+      "label": "/pay · link",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cps-to-proxy",
+      "from": "cps",
+      "to": "proxy",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "proxy-to-psp",
+      "from": "proxy",
+      "to": "psp",
+      "label": "CONNECT",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cps-to-pci",
+      "from": "cps",
+      "to": "pci",
+      "label": "tokenizar tarjeta",
+      "variant": "security",
+      "labelDx": -50
+    },
+    {
+      "id": "psp-webhooks",
+      "from": "psp",
+      "to": "cps",
+      "label": "webhooks",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "top"
+    },
+    {
+      "id": "cps-to-jp",
+      "from": "cps",
+      "to": "jp",
+      "label": "órdenes · credenciales",
+      "labelDy": 24
+    },
+    {
+      "id": "jp-to-proxy",
+      "from": "jp",
+      "to": "proxy",
+      "label": "Custom (BYOK)",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "jp-to-db",
+      "from": "jp",
+      "to": "db"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Flujos de pago",
+      "items": [
+        "Nativo: POST /pay cifrado desde el WhatsApp Flow",
+        "Link: POST /generate-link-payment + webhook o polling",
+        "3DS/OTP: /generate-async-payment y /verify-async-payment"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Seguridad",
+      "items": [
+        "Tarjetas tokenizadas en PCI Vault (salvo Datafast y Nuvei)",
+        "Salida a PSPs solo por dominios de squid.conf"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Sistema de registro",
+      "items": [
+        "jelou-payments guarda apps, órdenes, tarjetas y planes",
+        "Credenciales BYOK por empresa vía GET /apps/{id}/gateways"
+      ]
+    }
+  ]
+}

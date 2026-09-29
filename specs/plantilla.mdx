@@ -35,13 +35,13 @@ Agrega capturas o mockups en `images/` y referéncialos:
 </Frame>
 ```
 
-Para flujos, usa un diagrama:
+Para flujos o arquitectura, genera el diagrama con archify y embebe sus PNG (ver `AGENTS.md`):
 
-```mermaid
-sequenceDiagram
-  Usuario->>Bot: Acción
-  Bot->>Servicio: Request
-  Servicio-->>Bot: Respuesta
+```mdx
+<Frame>
+  <img className="block dark:hidden" src="/images/diagramas/mi-spec-light.png" alt="Flujo propuesto" />
+  <img className="hidden dark:block" src="/images/diagramas/mi-spec-dark.png" alt="Flujo propuesto" />
+</Frame>
 ```
 
 ## Criterios de aceptación
