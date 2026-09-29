@@ -1,48 +1,101 @@
 ---
 title: "Pagos"
-description: "Cobros, pasarelas y conciliación."
+description: "JelouPay: links de pago, pagos dentro del chat, suscripciones y pasarelas."
 icon: "credit-card"
 ---
 
-<Note>Página base. Reemplaza los bloques marcados con `TODO`.</Note>
-
 ## Qué es
 
-TODO: qué resuelve Pagos, para quién y dónde vive dentro de la plataforma Jelou.
+Pagos (JelouPay) permite cobrar desde las conversaciones de Jelou. Un bot puede generar un link de pago, cobrar dentro de un WhatsApp Flow o cobrar de forma recurrente. Todo pasa por una capa común que abstrae las pasarelas (PSP) de cada país.
+
+El core tiene tres piezas:
+
+- **`jelou-payments`**: el sistema de registro. Guarda apps (tenants), órdenes, clientes, tarjetas tokenizadas, planes y suscripciones, y la configuración de pasarelas de cada empresa.
+- **`chat-payments-service`**: el orquestador de pagos en el chat. Recibe el pago del WhatsApp Flow o genera el link/checkout, habla con cada PSP y notifica el resultado a JelouPay.
+- **`payments-egress-proxy`**: el proxy de salida. Las llamadas del backend a los PSP salen por aquí, solo hacia dominios permitidos.
 
 ## Repositorios
 
-| Repositorio | Qué contiene | Stack | Owner |
-| --- | --- | --- | --- |
-| TODO `repo-name` | TODO | TODO | TODO |
+| Repositorio | Qué contiene | Stack |
+| --- | --- | --- |
+| [`jelou-payments`](https://github.com/JelouLatam/jelou-payments) | API de JelouPay (órdenes, clientes, tarjetas, suscripciones, webhooks) y la UI de pago | PHP 8.4, Laravel 12, Octane, Sanctum, React 19 + Inertia 2, Tailwind, MySQL 8, Redis |
+| [`chat-payments-service`](https://github.com/JelouLatam/chat-payments-service) | Orquestador de pagos en el chat: pago nativo, links, checkouts propios, 3DS/OTP, recurrencia y webhooks de los PSP | Node.js 22, TypeScript, Express, Zod, EJS, AWS Lambda (imagen Docker), Serverless |
+| [`payments-egress-proxy`](https://github.com/JelouLatam/payments-egress-proxy) | Proxy Squid con allow-list de dominios de los PSP | Squid, Docker, busybox (health check para ALB) |
 
 ## Arquitectura
 
 ```mermaid
 flowchart LR
-  Canal[Canal / Bot] --> Workflow[Workflow Jelou]
-  Workflow --> Servicio[Servicio Pagos]
-  Servicio --> DB[(Base de datos)]
-  Servicio --> Ext[Proveedor externo]
+  User[Usuario en WhatsApp] --> Flow[WhatsApp Flow / Workflow]
+  Flow -- "POST /pay (cifrado)" --> CPS[chat-payments-service<br/>AWS Lambda]
+  Flow -- "POST /generate-link-payment" --> CPS
+  CPS -- órdenes y credenciales --> JP[jelou-payments<br/>JelouPay API]
+  CPS --> PCI[PCI Vault<br/>tokenización]
+  JP --> DB[(MySQL 8)]
+  JP --> R[(Redis)]
+  CPS --> PX[payments-egress-proxy<br/>Squid]
+  JP --> PX
+  PX --> PSP[PSPs: Stripe, Datafast,<br/>Kushki, Culqi, ...]
+  PSP -- webhooks --> CPS
+  CPS -- webhookJelouPay --> JP
 ```
 
-TODO: explica los componentes y el flujo principal.
+### Flujos de pago
+
+| | Pago nativo | Pago con checkout (link) |
+| --- | --- | --- |
+| **Endpoint** | `POST /pay` | `POST /generate-link-payment` |
+| **Dónde se captura la tarjeta** | Dentro del WhatsApp Flow, tokenizada por PCI Vault. Datafast y Nuvei reciben la tarjeta directo. | En la página del PSP o en una vista EJS del servicio |
+| **Resolución** | Respuesta síncrona cifrada al Flow | Webhook (`/link-webhook`) o polling (`/get-payment-status`) |
+
+Si el PSP pide un paso extra (3DS, OTP, redirect al banco), se usan `/generate-async-payment` y `/verify-async-payment`.
+
+El detalle está en `chat-payments-service/docs/payment-flows.md`. La recurrencia (motor Jelou vs. motor de la pasarela) está en `docs/RECURRENCE.md`.
+
+### Credenciales de las pasarelas
+
+- **Nivel 1:** variables de entorno del servicio.
+- **Nivel 2 (BYOK):** credenciales de cada empresa, que se leen de JelouPay (`GET /apps/{id}/gateways`).
+
+## Pasarelas soportadas
+
+**En `chat-payments-service`:** Stripe (incluye los alias Pocket y Pocket MEX), Culqi, Kushki, PayPhone, Niubiz, Mercado Pago, PlaceToPay, DeUna, Nuvei, Datafast, Wompi, PayPal, Conekta y PagoPlux.
+
+**En `jelou-payments`:** Stripe, Datafast, Cash on Delivery, Ecommerce, InChat (delega en `chat-payments-service`, por ejemplo PlaceToPay) y Custom (pasarelas BYOK que salen por el proxy). DeUna, Epayco, Klap, Niubiz y Velpay están en `Gateways/Deprecated`.
 
 ## Tecnologías
 
-- TODO
+- **JelouPay:** Laravel 12, Octane, Sanctum, `rinvex/laravel-subscriptions`, `spatie/laravel-webhook-client` y `-server`, React + Inertia, Pest, Dusk, Cypress.
+- **Chat payments:** Express, Zod, EJS, Jest, cifrado RSA + AES-GCM para el WhatsApp Flow.
+- **Infra:** AWS (ECR, CodeBuild, Lambda, ALB), Docker, GitHub Actions.
 
 ## Documentación externa
 
 <CardGroup cols={2}>
-  <Card title="TODO proveedor" icon="arrow-up-right-from-square" href="https://example.com">
-    TODO: para qué sirve este enlace.
+  <Card title="WhatsApp Flows: endpoint cifrado" icon="arrow-up-right-from-square" href="https://developers.facebook.com/docs/whatsapp/flows/guides/implementingyourflowendpoint">
+    Cómo Meta cifra el request que llega a `POST /pay`.
+  </Card>
+  <Card title="Stripe API" icon="arrow-up-right-from-square" href="https://docs.stripe.com/api">
+    Pasarela principal y motor de Stripe Billing.
+  </Card>
+  <Card title="Laravel 12" icon="arrow-up-right-from-square" href="https://laravel.com/docs/12.x">
+    Framework de `jelou-payments`.
+  </Card>
+  <Card title="Squid" icon="arrow-up-right-from-square" href="https://www.squid-cache.org/Doc/config/">
+    Configuración del proxy de salida.
   </Card>
 </CardGroup>
 
 ## Información importante
 
-<Warning>TODO: límites, credenciales (dónde están, nunca el valor), ambientes, contactos de soporte, gotchas.</Warning>
+<Warning>
+  - **Allow-list del proxy:** si una pasarela nueva no está en `squid.conf`, sus llamadas fallan en el túnel `CONNECT`. `jelou-payments` marca el `egress_status` de una pasarela Custom como activo la primera vez que el PSP responde.
+  - **CSP vs. allow-list:** los dominios de scripts de los checkouts (`csp.middleware.ts`) no son los mismos que los del proxy. Por ejemplo, Conekta usa `pay.conekta.com` en el navegador y `api.conekta.io` en el backend.
+  - **Datos de tarjeta:** nunca se guardan en claro. Se tokenizan con PCI Vault, excepto Datafast y Nuvei (`PROVIDERS_WITHOUT_PCI_TOKENIZATION`).
+  - **Desarrollo local de `chat-payments-service`:** necesitas `LOCAL_DEV=true`, `LAMBDA_URL` (ngrok, porque los PSP exigen HTTPS) y `BASE_URL_JELOU_PAY`.
+  - **Docs desactualizados en `jelou-payments`:** `CLAUDE.md` todavía menciona Laravel 11, Vapor y Nova. `composer.json` ya usa Laravel 12 y no incluye Nova, y el build pasa por ECR con CodeBuild.
+  - **Runtime de Lambda:** `serverless.yml` declara `nodejs20.x`, pero la imagen Docker usa Node 22. Verifica cuál aplica en producción.
+</Warning>
 
 ## Pendientes
 
