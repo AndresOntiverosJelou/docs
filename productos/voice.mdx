@@ -1,40 +1,80 @@
 ---
 title: "Voice"
-description: "Canal y agentes de voz."
+description: "Llamadas de WhatsApp atendidas por agentes de voz con IA y campañas de llamadas salientes."
 icon: "phone"
 ---
 
-<Note>Página base. Reemplaza los bloques marcados con `TODO`.</Note>
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { voiceLight, voiceDark } from "/snippets/diagramas/voice.jsx";
 
 ## Qué es
 
-TODO: qué resuelve Voice, para quién y dónde vive dentro de la plataforma Jelou.
+Voice conecta llamadas con agentes de voz con IA. Cubre dos casos:
+
+- **Llamadas entrantes de WhatsApp:** el usuario llama al número de la empresa desde WhatsApp y lo atiende un agente de ElevenLabs u OpenAI Live.
+- **Campañas salientes:** la empresa carga contactos y programa campañas que el agente llama automáticamente.
+
+`voice-service` (Orcher) es el sistema central: organizaciones, agentes, números, contactos, campañas y el registro de cada llamada.
 
 ## Repositorios
 
-| Repositorio | Qué contiene | Stack | Owner |
-| --- | --- | --- | --- |
-| TODO `repo-name` | TODO | TODO | TODO |
+| Repositorio | Qué contiene | Stack |
+| --- | --- | --- |
+| [`voice-service`](https://github.com/JelouLatam/voice-service) | Orcher: API de organizaciones, agentes, números, contactos, campañas, ruteo de llamadas, registro de llamadas (CDR), billing y reportes | NestJS 11, Prisma 6, MySQL, `@nestjs/schedule`, Swagger |
+| [`voice-meta-calling`](https://github.com/JelouLatam/voice-meta-calling) | Bridge de llamadas de WhatsApp (`@jelou/calling-bridge`): recibe la llamada de Meta por WebRTC y la pasa a Asterisk por RTP | Node.js, Express, werift (WebRTC), `ari-client`, Opus, Fly.io |
+| [`asterisk-gateway-service`](https://github.com/JelouLatam/asterisk-gateway-service) | Configuración de Asterisk: peers SIP, dialplan, ARI y RTP | Asterisk (PJSIP, ARI) |
 
 ## Arquitectura
 
-TODO: diagrama con archify (ver `AGENTS.md`) y explicación de los componentes y el flujo principal.
+<DiagramViewer light={voiceLight} dark={voiceDark} alt="Arquitectura de Voice" />
+
+<Tip>Versión interactiva: abre `diagramas/voice.html` en tu navegador. La fuente es `diagramas/voice.architecture.json`.</Tip>
+
+### Llamada entrante de WhatsApp
+
+1. Meta manda el evento de llamada a `chatbot-server`, que lo reenvía a `voice-meta-calling` en `POST /webhooks/voice`.
+2. El bridge acepta la llamada en dos pasos por la Graph API, a través de `chatbot-server`: `pre_accept` abre el canal de media y `accept` inicia el audio.
+3. El bridge le pregunta a `voice-service` qué proveedor atiende el número. Si el número está registrado para OpenAI Live y apunta a un agente de su organización, va a OpenAI Live. Si no, va a ElevenLabs.
+4. El bridge convierte el audio de WebRTC a RTP y, con ARI, hace que Asterisk marque al peer SIP del proveedor. El número llamado viaja en el header `X-WV-TO`.
+5. Al terminar, el bridge reporta el resultado a `voice-service`. La llamada queda registrada con `callType: "meta-cloud-api"` y se disparan los webhooks de la organización.
+
+### Proveedores de `voice-service`
+
+`voice-service` usa un patrón de adaptadores por proveedor (`src/providers/adapters/`). El enum `VoiceProvider` define `ELEVENLABS`, `GUPSHUP`, `JELOU_API`, `VAPI` y `OPENAI_LIVE`. También tiene módulos de Twilio (billing por uso) y Gupshup (mensajería de WhatsApp).
+
+Las guías de cada integración están en `voice-service/docs/`: `ELEVENLABS_SETUP.md`, `OPENAI_LIVE_SETUP.md`, `VAPI_SETUP.md`, `GUPSHUP_SETUP.md` y `TWILIO_USAGE_BILLING.md`.
 
 ## Tecnologías
 
-- TODO
+- **Orcher:** NestJS 11, Prisma 6 con MySQL, tareas programadas con `@nestjs/schedule`, Swagger. Se despliega con Docker a ECR con CodeBuild/CodePipeline en AWS.
+- **Bridge:** Node.js + Express, werift para WebRTC, `@discordjs/opus` para el audio y `ari-client` para Asterisk. Guarda las sesiones en memoria o en Redis (`STORE_BACKEND`). Corre en Fly.io, en la región `dfw`, con el puerto UDP 10000 expuesto para RTP.
+- **Asterisk:** PJSIP por TCP en el puerto 5060, ARI en el 8088 y RTP entre los puertos 10000 y 20000.
 
 ## Documentación externa
 
 <CardGroup cols={2}>
-  <Card title="TODO proveedor" icon="arrow-up-right-from-square" href="https://example.com">
-    TODO: para qué sirve este enlace.
+  <Card title="WhatsApp Cloud API Calling" icon="arrow-up-right-from-square" href="https://developers.facebook.com/docs/whatsapp/cloud-api/calling">
+    Llamadas de WhatsApp que recibe el bridge.
+  </Card>
+  <Card title="ElevenLabs SIP trunking" icon="arrow-up-right-from-square" href="https://elevenlabs.io/docs/agents-platform/phone-numbers/sip-trunking">
+    Cómo Asterisk entrega la llamada a ElevenLabs.
+  </Card>
+  <Card title="OpenAI Realtime SIP" icon="arrow-up-right-from-square" href="https://platform.openai.com/docs/guides/realtime-sip">
+    Proveedor OpenAI Live.
+  </Card>
+  <Card title="Asterisk ARI" icon="arrow-up-right-from-square" href="https://docs.asterisk.org/Configuration/Interfaces/Asterisk-REST-Interface-ARI/">
+    Interfaz que usa el bridge para controlar Asterisk.
   </Card>
 </CardGroup>
 
 ## Información importante
 
-<Warning>TODO: límites, credenciales (dónde están, nunca el valor), ambientes, contactos de soporte, gotchas.</Warning>
+<Warning>
+  - **Credenciales en el repo:** `asterisk-gateway-service/config/ari.conf` tiene la contraseña del usuario ARI escrita en el archivo y `allowed_origins = *`. Muévela a un secreto y restringe los orígenes antes de exponer ARI.
+  - **Configuración por completar:** `pjsip.conf` trae valores de ejemplo (`0.0.0.0` y el CIDR de la red) marcados como "CHANGE". El repo no incluye scripts de deploy.
+  - **Ruteo por defecto:** si `ROUTING_SERVICE_URL` y `ROUTING_GATEWAY_TOKEN` no están configurados en el bridge, todas las llamadas van a ElevenLabs. `ROUTING_GATEWAY_TOKEN` debe coincidir con `ASTERISK_GATEWAY_TOKEN` en `voice-service`.
+  - **OpenAI Live:** el INVITE a OpenAI usa el id del proyecto (`proj_…`) como usuario SIP, configurado en `OPENAI_PROJECT_ID`.
+</Warning>
 
 ## Pendientes
 

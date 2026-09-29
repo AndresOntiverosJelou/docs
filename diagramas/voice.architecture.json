@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Voice: llamadas con agentes de IA",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "wa",
+      "type": "external",
+      "label": "WhatsApp",
+      "sublabel": "Meta Cloud API Calling",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "chatbot",
+      "type": "backend",
+      "label": "chatbot-server",
+      "sublabel": "webhooks y Graph API",
+      "pos": [
+        300,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "bridge",
+      "type": "backend",
+      "label": "voice-meta-calling",
+      "sublabel": "WebRTC → RTP",
+      "pos": [
+        560,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Fly.io"
+    },
+    {
+      "id": "ast",
+      "type": "backend",
+      "label": "asterisk-gateway",
+      "sublabel": "PJSIP + ARI",
+      "pos": [
+        820,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Asterisk"
+    },
+    {
+      "id": "agents",
+      "type": "external",
+      "label": "Agentes de voz",
+      "sublabel": "ElevenLabs · OpenAI Live",
+      "pos": [
+        1080,
+        100
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "vs",
+      "type": "backend",
+      "label": "voice-service",
+      "sublabel": "Orcher",
+      "pos": [
+        560,
+        290
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "NestJS 11"
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "MySQL",
+      "sublabel": "llamadas, contactos, campañas",
+      "pos": [
+        260,
+        290
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "prov",
+      "type": "external",
+      "label": "Proveedores",
+      "sublabel": "ElevenLabs, Twilio, Vapi, Gupshup",
+      "pos": [
+        820,
+        290
+      ],
+      "size": [
+        220,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "wa-to-chatbot",
+      "from": "wa",
+      "to": "chatbot",
+      "label": "llamada",
+      "variant": "emphasis"
+    },
+    {
+      "id": "chatbot-to-bridge",
+      "from": "chatbot",
+      "to": "bridge",
+      "label": "webhook",
+      "variant": "emphasis"
+    },
+    {
+      "id": "bridge-to-ast",
+      "from": "bridge",
+      "to": "ast",
+      "label": "RTP + ARI",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ast-to-agents",
+      "from": "ast",
+      "to": "agents",
+      "label": "SIP",
+      "variant": "emphasis"
+    },
+    {
+      "id": "bridge-to-vs",
+      "from": "bridge",
+      "to": "vs",
+      "label": "ruteo · resultado",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "vs-to-db",
+      "from": "vs",
+      "to": "db"
+    },
+    {
+      "id": "vs-to-prov",
+      "from": "vs",
+      "to": "prov",
+      "label": "salientes",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Llamada entrante",
+      "items": [
+        "Meta manda el evento a chatbot-server, que lo reenvía al bridge",
+        "El bridge acepta la llamada (pre_accept → accept) y convierte WebRTC a RTP"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Ruteo",
+      "items": [
+        "voice-service decide por número: OpenAI Live si está registrado, si no ElevenLabs",
+        "Asterisk marca al peer SIP que corresponde"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Orcher",
+      "items": [
+        "Organizaciones, agentes, contactos y campañas programadas",
+        "Registra cada llamada con costo, duración y transcripción"
+      ]
+    }
+  ]
+}
