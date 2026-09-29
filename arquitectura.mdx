@@ -1,0 +1,53 @@
+---
+title: "Arquitectura general"
+description: "Cómo se conectan los productos de Marketplace con la plataforma Jelou."
+icon: "sitemap"
+---
+
+<Note>Diagrama base. Ajusta nodos y conexiones a la arquitectura real.</Note>
+
+```mermaid
+flowchart TB
+  subgraph Canales
+    WA[WhatsApp]
+    Web[Web / Widget]
+    Tel[Telefonía]
+  end
+
+  subgraph Plataforma Jelou
+    WF[Workflows]
+    Fn[Functions]
+  end
+
+  subgraph Marketplace
+    Shop[Ecommerce]
+    Pay[Pagos]
+    KYC[KYC]
+    Voice[Voice]
+    Int[Otras integraciones]
+  end
+
+  WA --> WF
+  Web --> WF
+  Tel --> Voice --> WF
+  WF --> Shop
+  WF --> Pay
+  WF --> KYC
+  WF --> Int
+  Shop --> Pay
+  Fn --> Int
+```
+
+## Dependencias entre productos
+
+| Desde | Hacia | Motivo |
+| --- | --- | --- |
+| Ecommerce | Pagos | TODO: cobro de pedidos |
+| TODO | TODO | TODO |
+
+## Ambientes
+
+| Ambiente | URL / cluster | Notas |
+| --- | --- | --- |
+| Desarrollo | TODO | TODO |
+| Producción | TODO | TODO |

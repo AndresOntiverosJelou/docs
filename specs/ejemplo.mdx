@@ -1,0 +1,38 @@
+---
+title: "Ejemplo: filtro por categoría"
+description: "Spec de ejemplo. Bórrala cuando tengas specs reales."
+icon: "flask"
+---
+
+| Campo | Valor |
+| --- | --- |
+| Producto | Ecommerce |
+| Estado | Por definir |
+| Responsable | TODO |
+| Repositorios | TODO |
+| Tarea en ClickUp | TODO |
+
+## Contexto
+
+Los usuarios no pueden filtrar el catálogo por categoría desde el bot.
+
+## Qué hace falta
+
+- [ ] Endpoint que acepte `categoryId`
+- [ ] Menú de categorías en el workflow
+
+## Diseño
+
+```mermaid
+sequenceDiagram
+  Usuario->>Bot: "Ver categorías"
+  Bot->>Shop: GET /categories
+  Shop-->>Bot: Lista
+  Usuario->>Bot: Elige categoría
+  Bot->>Shop: GET /products?categoryId=...
+  Shop-->>Bot: Productos
+```
+
+## Criterios de aceptación
+
+- [ ] Dado un catálogo con categorías, cuando el usuario elige una, entonces solo ve productos de esa categoría.
