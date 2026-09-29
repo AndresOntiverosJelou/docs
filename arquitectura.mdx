@@ -20,6 +20,7 @@ flowchart TB
   end
 
   subgraph Marketplace
+    Mkt[Marketplace]
     Shop[Ecommerce]
     Pay[Pagos]
     KYC[KYC]
@@ -34,6 +35,8 @@ flowchart TB
   WF --> Pay
   WF --> KYC
   WF --> Int
+  WF --> Mkt
+  Mkt --> Int
   Shop --> Pay
   Fn --> Int
 ```

@@ -23,6 +23,7 @@
           {
             "group": "Productos",
             "pages": [
+              "productos/marketplace",
               "productos/ecommerce",
               "productos/pagos",
               "productos/kyc",

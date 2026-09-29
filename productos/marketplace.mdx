@@ -1,0 +1,87 @@
+---
+title: "Marketplace"
+description: "Catálogo de apps MCP, OAuth2 con terceros y MCP Gateway para los workflows."
+icon: "store"
+---
+
+## Qué es
+
+Marketplace es el ecosistema de apps de la plataforma Jelou. Mantiene el catálogo de apps MCP (Model Context Protocol) y gestiona los flujos OAuth2 con terceros, como Google, Slack, HubSpot, Shopify, Meta Ads, Linear y Pipedream. Además, expone un MCP Gateway que usa el workflow engine para ejecutar tools contra APIs externas reales.
+
+También incluye un agente conversacional (LangGraph + reranking con Cohere) para descubrir apps de forma semántica.
+
+## Repositorios
+
+| Repositorio | Qué contiene | Stack |
+| --- | --- | --- |
+| [`marketplace-service`](https://github.com/JelouLatam/marketplace-service) | API del catálogo de apps, OAuth2 multi-proveedor, MCP Gateway y agente de descubrimiento | NestJS 11 + Fastify, TypeORM, MySQL 8, Redis, LangGraph |
+| [`marketplace-apps`](https://github.com/JelouLatam/marketplace-apps) | Servidores MCP de cada integración (`mcps/<nombre>-workspace`) | Deno, TypeScript, Jelou CLI |
+
+Algunos de los MCP que viven en `marketplace-apps`: Alegra, AgendaPro, Bitrix, Calendly, Contífico, Dátil, ElevenLabs, Facturama, Freshdesk, Google Workspace, HubSpot, Jelou KYC, Jelou Shop, Odoo, Shopify, Siigo, Slack, Stripe, Supabase y WooCommerce.
+
+## Arquitectura
+
+```mermaid
+flowchart LR
+  Apps[Jelou Apps] --> GW[Api Gateway]
+  GW --> MS[marketplace-service]
+  WFE[Workflow Engine] -- MCP Gateway --> MS
+  MS --> DB[(MySQL 8)]
+  MS --> R[(Redis)]
+  MS --> OAuth[Proveedores OAuth2 / Pipedream]
+  MS --> MCP[MCP Apps en Deno]
+  MCP --> Ext[APIs de terceros]
+  CLI[Jelou CLI] -- deploy / sync --> MCP
+  CLI -- sync integrations --> MS
+```
+
+El usuario instala una app desde Jelou Apps y autoriza con OAuth2. Cuando un workflow necesita una tool, el workflow engine la invoca a través del MCP Gateway de `marketplace-service`. El gateway la ejecuta en el servidor MCP correspondiente, alojado en Deno.
+
+La arquitectura completa está en `marketplace-service/docs/PLATFORM-ARCHITECTURE.md` y el detalle de módulos en `docs/ARCHITECTURE.md`.
+
+## Tecnologías
+
+- **Servicio:** NestJS 11, Fastify, TypeORM, MySQL 8, Redis
+- **IA:** LangGraph, Cohere (reranking), `@modelcontextprotocol/sdk`
+- **Apps MCP:** Deno, TypeScript, Deno Deploy / Subhosting
+- **Herramientas:** Jelou CLI, MCP Inspector, Docker Compose, Testcontainers (E2E)
+
+## Publicar un MCP
+
+<Steps>
+  <Step title="Desplegar el servidor">
+    Desde `mcps/<nombre>-workspace`, ejecuta `jelou mcp:deploy <nombre>-mcp`. Cada deploy genera un `deployment_id` y una URL nueva: `https://jelou-marketplace-{deployment_id}.deno.dev/mcp`.
+  </Step>
+  <Step title="Sincronizar la ficha">
+    Ejecuta `jelou mcp:config <nombre>-mcp --sync-integrations` para subir `integrations.json` al Marketplace.
+  </Step>
+</Steps>
+
+## Documentación externa
+
+<CardGroup cols={2}>
+  <Card title="Model Context Protocol" icon="arrow-up-right-from-square" href="https://modelcontextprotocol.io">
+    Especificación del protocolo MCP.
+  </Card>
+  <Card title="Deno Deploy" icon="arrow-up-right-from-square" href="https://docs.deno.com/deploy/">
+    Donde se alojan los servidores MCP.
+  </Card>
+  <Card title="NestJS" icon="arrow-up-right-from-square" href="https://docs.nestjs.com">
+    Framework de `marketplace-service`.
+  </Card>
+  <Card title="Pipedream Connect" icon="arrow-up-right-from-square" href="https://pipedream.com/docs/connect">
+    Proveedor de OAuth para parte de las integraciones.
+  </Card>
+</CardGroup>
+
+## Información importante
+
+<Warning>
+  - Cada `jelou mcp:deploy` cambia la URL del MCP. Si un cliente apunta a la URL anterior, actualízalo.
+  - Para desplegar necesitas `typescript` instalado globalmente; sin él falla la extracción de esquemas de las tools.
+  - TODO: ambientes, owners y contactos.
+</Warning>
+
+## Pendientes
+
+Mira los pendientes de Marketplace en [Pendientes](/pendientes#marketplace).
