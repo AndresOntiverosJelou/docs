@@ -20,7 +20,8 @@
 - The site uses authentication, so Mintlify returns 404 for every static file (images, HTML). Don't reference files from `images/`; inline the diagram instead:
   1. Open `diagramas/<name>.html` and use **Export → SVG** (one dual-theme SVG).
   2. Convert it to a snippet: `node diagramas/svg-to-snippet.mjs <export.svg> <name>`. It writes `snippets/diagramas/<name>.jsx` with `<name>Light` and `<name>Dark` data URIs.
-  3. In the page, import both from `/snippets/diagramas/<name>.jsx` and render them inside a `<Frame>` as two `<img>` tags with `className="block dark:hidden"` and `className="hidden dark:block"`. See `productos/pagos.mdx`.
+  3. In the page, import `DiagramViewer` from `/snippets/diagram-viewer.jsx` and both URIs from `/snippets/diagramas/<name>.jsx`, then render `<DiagramViewer light={<name>Light} dark={<name>Dark} alt="…" />`. It adds zoom, pan and fullscreen. See `productos/pagos.mdx`.
+- In snippets, Mintlify only adds its `mint-` Tailwind prefix to literal `className` strings in the JSX the exported component returns. Classes built in variables or nested components stay unprefixed and unstyled, so write classes inline and put state-dependent styling in `style`.
 
 ## Terminology
 

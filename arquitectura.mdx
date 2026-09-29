@@ -4,12 +4,10 @@ description: "Cómo se conectan los productos de Marketplace con la plataforma J
 icon: "sitemap"
 ---
 
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
 import { generalLight, generalDark } from "/snippets/diagramas/general.jsx";
 
-<Frame>
-  <img className="block dark:hidden" src={generalLight} alt="Vista general del equipo Marketplace" />
-  <img className="hidden dark:block" src={generalDark} alt="Vista general del equipo Marketplace" />
-</Frame>
+<DiagramViewer light={generalLight} dark={generalDark} alt="Vista general del equipo Marketplace" />
 
 <Tip>Versión interactiva: abre `diagramas/general.html` en tu navegador. La fuente es `diagramas/general.architecture.json`.</Tip>
 

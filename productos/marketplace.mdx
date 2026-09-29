@@ -4,6 +4,7 @@ description: "Catálogo de apps MCP, OAuth2 con terceros y MCP Gateway para los 
 icon: "store"
 ---
 
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
 import { marketplaceLight, marketplaceDark } from "/snippets/diagramas/marketplace.jsx";
 
 ## Qué es
@@ -23,10 +24,7 @@ Algunos de los MCP que viven en `marketplace-apps`: Alegra, AgendaPro, Bitrix, C
 
 ## Arquitectura
 
-<Frame>
-  <img className="block dark:hidden" src={marketplaceLight} alt="Arquitectura de Marketplace" />
-  <img className="hidden dark:block" src={marketplaceDark} alt="Arquitectura de Marketplace" />
-</Frame>
+<DiagramViewer light={marketplaceLight} dark={marketplaceDark} alt="Arquitectura de Marketplace" />
 
 <Tip>Versión interactiva: abre `diagramas/marketplace.html` en tu navegador. La fuente es `diagramas/marketplace.architecture.json`.</Tip>
 
