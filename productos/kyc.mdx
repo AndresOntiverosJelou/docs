@@ -1,40 +1,96 @@
 ---
 title: "KYC"
-description: "Verificación de identidad y biometría."
+description: "Verificación de identidad: liveness, documento, facematch, validación con el gobierno y firma electrónica."
 icon: "id-card"
 ---
 
-<Note>Página base. Reemplaza los bloques marcados con `TODO`.</Note>
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { kycLight, kycDark } from "/snippets/diagramas/kyc.jsx";
 
 ## Qué es
 
-TODO: qué resuelve KYC, para quién y dónde vive dentro de la plataforma Jelou.
+KYC verifica que el usuario es quien dice ser, desde el celular y en pocos minutos. Tiene cuatro pasos:
+
+- **Liveness:** confirma que hay una persona real frente a la cámara.
+- **Documento:** valida la cédula o el pasaporte y extrae sus datos por OCR.
+- **Facematch:** compara la selfie con la foto del documento.
+- **Validación con el gobierno:** contrasta los datos contra la fuente oficial de cada país.
+
+El bot manda un link al webview de KYC. También se puede hacer por WhatsApp Flow, sin webview. Además, el servicio ofrece firma electrónica con varios proveedores.
 
 ## Repositorios
 
-| Repositorio | Qué contiene | Stack | Owner |
-| --- | --- | --- | --- |
-| TODO `repo-name` | TODO | TODO | TODO |
+| Repositorio | Qué contiene | Stack |
+| --- | --- | --- |
+| [`kyc-webview`](https://github.com/JelouLatam/kyc-webview) | Webview de verificación (landing, selfie, documento, resultado) y Workers que validan la sesión y hacen de proxy al backend | React 19, Vite 7, Tailwind 3, i18next, SDKs web de Regula, Cloudflare Pages + Functions |
+| [`identity-service`](https://github.com/JelouLatam/identity-service) | Backend de identidad: biometría, WhatsApp Flows, validación con el gobierno, firma electrónica, reportes y métricas | Node.js, Express 5, Prisma 7 (`@jeloulatam/identity-db`), MySQL, Redis, ClickHouse, Zod, Sentry |
 
 ## Arquitectura
 
-TODO: diagrama con archify (ver `AGENTS.md`) y explicación de los componentes y el flujo principal.
+<DiagramViewer light={kycLight} dark={kycDark} alt="Arquitectura de KYC" />
+
+<Tip>Versión interactiva: abre `diagramas/kyc.html` en tu navegador. La fuente es `diagramas/kyc.architecture.json`.</Tip>
+
+### Flujo con webview
+
+1. El bot envía un link con token. Su vigencia sale de `linkTtlMinutes` en la configuración de la empresa.
+2. `kyc-webview` valida la sesión con su Worker `verify-session`. El Worker toma la IP real de `CF-Connecting-IP`. Cloudflare Turnstile filtra bots antes de continuar.
+3. El usuario hace la selfie y captura el documento. Los Workers de `functions/api/` reenvían cada paso a `identity-service`.
+4. `identity-service` valida liveness y facematch con Rekognition y el documento con Regula. Después consulta al gobierno según el país y registra cada paso en `biometric_steps`.
+5. Al terminar, `identity-service` notifica al bot. La notificación no bloquea la respuesta al usuario.
+
+### Flujo con WhatsApp Flow
+
+`POST /api/v1/flows` recibe el request cifrado del WhatsApp Flow (RSA + AES). Según el campo `origen`, lo manda a `liveness`, `document_check_1`, `document_check_2`, `facematch` o `gob_entity`, y responde cifrado.
+
+### Validación con el gobierno por país
+
+| País | Cómo se consulta |
+| --- | --- |
+| PE | Directo a Floid (RENIEC) y Verifik, en paralelo |
+| CO | Jelou Workflows (tool 3208) o directo a GSE ANI |
+| EC | Jelou Workflows (tool 3207) o directo a Registro Civil vía Jelou Integrations |
+| CL | Floid directo o Jelou |
+
+El detalle está en `identity-service/CLAUDE.md`, sección "Gov validation".
+
+### Firma electrónica
+
+Rutas `/api/v1/sign/*` (requieren JWT): `fad`, `gse`, `nubarium` (comprobante de domicilio por OCR) y `uanataca` (firma One-Shot).
 
 ## Tecnologías
 
-- TODO
+- **Webview:** React 19, Vite, SDKs web de Regula (documento y rostro), captura propia con análisis de calidad de imagen (Laplacian + Sobel) detrás del flag `TEST_FRONT`, detección de cámaras virtuales.
+- **Edge:** Cloudflare Pages Functions para sesión, feature flags, Turnstile y proxy.
+- **Backend:** Express 5, Prisma 7 con MySQL, Redis (caché compartida con `chatbot`), ClickHouse para métricas, AWS Rekognition, Secrets Manager y CloudFront signer, Sentry.
+- **Proveedores:** Regula, Floid, Verifik, GSE, Jelou Integrations, FAD, Nubarium, Uanataca. OpenAI para detectar recaptura y manipulación de documentos.
 
 ## Documentación externa
 
 <CardGroup cols={2}>
-  <Card title="TODO proveedor" icon="arrow-up-right-from-square" href="https://example.com">
-    TODO: para qué sirve este enlace.
+  <Card title="Rekognition Face Liveness" icon="arrow-up-right-from-square" href="https://docs.aws.amazon.com/rekognition/latest/dg/face-liveness.html">
+    Liveness y comparación de rostros.
+  </Card>
+  <Card title="Regula Document Reader" icon="arrow-up-right-from-square" href="https://docs.regulaforensics.com/develop/doc-reader-sdk/web-service/">
+    Lectura y validación de documentos.
+  </Card>
+  <Card title="WhatsApp Flows" icon="arrow-up-right-from-square" href="https://developers.facebook.com/docs/whatsapp/flows">
+    El flujo alternativo sin webview.
+  </Card>
+  <Card title="Cloudflare Pages Functions" icon="arrow-up-right-from-square" href="https://developers.cloudflare.com/pages/functions/">
+    Los Workers de `kyc-webview`.
   </Card>
 </CardGroup>
 
 ## Información importante
 
-<Warning>TODO: límites, credenciales (dónde están, nunca el valor), ambientes, contactos de soporte, gotchas.</Warning>
+<Warning>
+  - **Rutas públicas:** en `identity-service` solo `/biometric/config`, `/flows`, `/reports` (HTML), `/auth/*` y `/clients` son públicas. El resto de `/biometric/*` requiere JWT.
+  - **Eventos del webview que se pierden:** `kyc-webview` manda eventos a `/kyc-events/track` que todavía no existen en `KycSessionEventType` (por ejemplo `landing_viewed` y `session_completed`). Se descartan en silencio hasta que `@jeloulatam/identity-db` los agregue.
+  - **Rollup diario:** el job `rollup-daily` estaba documentado como disparado por EventBridge, pero nunca se configuró. Ahora se agenda dentro del proceso (`rollupScheduler.js`).
+  - **Código muerto:** `jelouWorkflowsProvider.js` todavía declara una ruta PE (tool 3203) que ya nadie usa, porque PE pasó a consulta directa.
+  - **Pruebas sin cámara:** para probar sin cámara ni documento real existen el modo demo (`demoNumbers` en la configuración de la empresa) y los escenarios mock (`/kyc-mock-scenarios`).
+</Warning>
 
 ## Pendientes
 

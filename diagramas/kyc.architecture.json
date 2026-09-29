@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "KYC: verificación de identidad",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "bot", "type": "external", "label": "Bot / Workflows", "sublabel": "WhatsApp", "pos": [40, 300], "size": [170, 64] },
+    { "id": "webview", "type": "frontend", "label": "kyc-webview", "sublabel": "selfie y documento", "pos": [320, 300], "size": [170, 64], "tag": "Cloudflare Pages" },
+    { "id": "identity", "type": "backend", "label": "identity-service", "sublabel": "API /api/v1", "pos": [600, 300], "size": [170, 64], "tag": "Express 5" },
+    { "id": "rek", "type": "cloud", "label": "AWS Rekognition", "sublabel": "liveness y facematch", "pos": [900, 60], "size": [190, 64] },
+    { "id": "regula", "type": "security", "label": "Regula", "sublabel": "document check / OCR", "pos": [900, 210], "size": [190, 64] },
+    { "id": "gov", "type": "external", "label": "Validación gobierno", "sublabel": "RENIEC, Registro Civil, ANI…", "pos": [900, 360], "size": [190, 64] },
+    { "id": "sign", "type": "external", "label": "Firma electrónica", "sublabel": "FAD, GSE, Nubarium, Uanataca", "pos": [900, 510], "size": [190, 64] },
+    { "id": "db", "type": "database", "label": "MySQL · Redis · ClickHouse", "sublabel": "biometrías, caché, métricas", "pos": [580, 540], "size": [210, 64] }
+  ],
+  "connections": [
+    { "id": "bot-to-webview", "from": "bot", "to": "webview", "label": "link", "variant": "emphasis" },
+    { "id": "webview-to-identity", "from": "webview", "to": "identity", "label": "Workers", "variant": "emphasis" },
+    { "id": "identity-to-rek", "from": "identity", "to": "rek" },
+    { "id": "identity-to-regula", "from": "identity", "to": "regula" },
+    { "id": "identity-to-gov", "from": "identity", "to": "gov" },
+    { "id": "identity-to-sign", "from": "identity", "to": "sign" },
+    { "id": "identity-to-db", "from": "identity", "to": "db", "fromSide": "bottom", "toSide": "top" },
+    { "id": "bot-flows", "from": "bot", "to": "identity", "label": "/flows cifrado", "variant": "dashed", "fromSide": "bottom", "toSide": "bottom" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Webview", "items": ["Landing, selfie con liveness, frente y reverso del documento", "Workers en Cloudflare: sesión, Turnstile y proxy al backend"] },
+    { "dot": "emerald", "title": "Verificación", "items": ["Liveness y facematch con Rekognition", "Documento con Regula; validación con el gobierno según el país"] },
+    { "dot": "amber", "title": "WhatsApp Flow", "items": ["Alternativa sin webview: /flows con cifrado RSA + AES", "Pasos: liveness, document_check, facematch, gob_entity"] }
+  ]
+}
