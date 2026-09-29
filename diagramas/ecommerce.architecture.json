@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Ecommerce: Jelou Shop",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "bot", "type": "external", "label": "Bot / Workflows", "sublabel": "WhatsApp", "pos": [40, 300], "size": [170, 64] },
+    { "id": "mcp", "type": "backend", "label": "MCP jelou-shop", "sublabel": "marketplace-apps", "pos": [320, 300], "size": [170, 64], "tag": "Deno" },
+    { "id": "api", "type": "backend", "label": "jelou-ecommerce", "sublabel": "API v1 / v2", "pos": [600, 300], "size": [170, 64], "tag": "Laravel 12" },
+    { "id": "stores", "type": "external", "label": "Tiendas externas", "sublabel": "Shopify, WooCommerce, VTEX, Meta", "pos": [880, 300], "size": [190, 64] },
+    { "id": "webview", "type": "frontend", "label": "ecommerce-webview", "sublabel": "catálogo y carrito", "pos": [320, 110], "size": [170, 64], "tag": "React 19" },
+    { "id": "dash", "type": "frontend", "label": "ecommerce-dashboard", "sublabel": "admin de catálogo", "pos": [600, 110], "size": [170, 64], "tag": "prototipo" },
+    { "id": "db", "type": "database", "label": "MySQL · PostgreSQL", "sublabel": "catálogo, carritos, búsqueda", "pos": [460, 490], "size": [190, 64] },
+    { "id": "sqs", "type": "messagebus", "label": "SQS FIFO", "sublabel": "ecommerce.order.paid", "pos": [880, 490], "size": [190, 64] },
+    { "id": "jp", "type": "backend", "label": "jelou-payments", "sublabel": "JelouPay", "pos": [1160, 490], "size": [170, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Laravel Cloud", "wraps": ["api"] }
+  ],
+  "connections": [
+    { "id": "bot-to-mcp", "from": "bot", "to": "mcp", "label": "tools", "variant": "emphasis" },
+    { "id": "mcp-to-api", "from": "mcp", "to": "api", "label": "REST", "variant": "emphasis" },
+    { "id": "api-to-stores", "from": "api", "to": "stores", "label": "sync productos", "variant": "emphasis" },
+    { "id": "webview-to-api", "from": "webview", "to": "api", "label": "API v1/v2", "fromSide": "right", "toSide": "top" },
+    { "id": "dash-to-api", "from": "dash", "to": "api", "fromSide": "bottom", "toSide": "top" },
+    { "id": "api-to-db", "from": "api", "to": "db", "fromSide": "bottom", "toSide": "top" },
+    { "id": "jp-to-sqs", "from": "jp", "to": "sqs", "label": "SNS", "variant": "dashed" },
+    { "id": "sqs-to-api", "from": "sqs", "to": "api", "label": "orden pagada", "variant": "dashed", "fromSide": "top", "toSide": "bottom" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Conversación", "items": ["El bot usa las tools del MCP: buscar, carrito y enviar webviews", "El usuario compra en ecommerce-webview dentro de WhatsApp"] },
+    { "dot": "emerald", "title": "Catálogo", "items": ["Drivers sincronizan productos de Shopify, WooCommerce, VTEX y Meta", "Colas en Horizon/Redis: fast, sync e images"] },
+    { "dot": "amber", "title": "Pago", "items": ["POST /cart/checkout cierra el carrito", "JelouPay publica ecommerce.order.paid y el carrito queda pagado"] }
+  ]
+}

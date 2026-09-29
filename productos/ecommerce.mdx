@@ -1,40 +1,91 @@
 ---
 title: "Ecommerce"
-description: "Catálogo, tienda y pedidos."
+description: "Jelou Shop: catálogo, búsqueda, carrito y pedidos dentro de la conversación."
 icon: "cart-shopping"
 ---
 
-<Note>Página base. Reemplaza los bloques marcados con `TODO`.</Note>
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { ecommerceLight, ecommerceDark } from "/snippets/diagramas/ecommerce.jsx";
 
 ## Qué es
 
-TODO: qué resuelve Ecommerce, para quién y dónde vive dentro de la plataforma Jelou.
+Ecommerce (Jelou Shop) permite vender dentro de la conversación. El bot busca productos, arma el carrito y abre un webview de catálogo o de carrito en WhatsApp. Al hacer checkout, el cobro se hace con [Pagos](/productos/pagos).
+
+El catálogo puede ser propio o sincronizado desde la tienda del cliente: Shopify, WooCommerce, VTEX o el catálogo de Meta.
 
 ## Repositorios
 
-| Repositorio | Qué contiene | Stack | Owner |
-| --- | --- | --- | --- |
-| TODO `repo-name` | TODO | TODO | TODO |
+| Repositorio | Qué contiene | Stack |
+| --- | --- | --- |
+| [`jelou-ecommerce`](https://github.com/JelouLatam/jelou-ecommerce) | Backend de Jelou Shop: productos, categorías, sucursales, carritos, cupones, búsqueda, sync con tiendas y métricas | PHP 8.3, Laravel 12, Horizon, Scout, Sanctum, Nova 5, Saloon, MySQL, PostgreSQL, Redis |
+| [`ecommerce-webview`](https://github.com/JelouLatam/ecommerce-webview) | Webview que el bot abre en WhatsApp: catálogo, detalle de producto, carrito y orden confirmada | React 19, Vite 7, Tailwind 4, TanStack Query, wouter, i18next |
+| [`ecommerce-dashboard`](https://github.com/JelouLatam/ecommerce-dashboard) | Admin de catálogo: productos, categorías, colecciones, atributos e importación | React 19, Vite 7, Tailwind 4, shadcn/ui, Cortex |
+| [`marketplace-apps`](https://github.com/JelouLatam/marketplace-apps) → `mcps/jelou-shop-workspace` | MCP `jelou-shop` con las tools que usa el bot | Deno, TypeScript |
 
 ## Arquitectura
 
-TODO: diagrama con archify (ver `AGENTS.md`) y explicación de los componentes y el flujo principal.
+<DiagramViewer light={ecommerceLight} dark={ecommerceDark} alt="Arquitectura de Ecommerce" />
+
+<Tip>Versión interactiva: abre `diagramas/ecommerce.html` en tu navegador. La fuente es `diagramas/ecommerce.architecture.json`.</Tip>
+
+### Tools del MCP `jelou-shop`
+
+| Grupo | Tools |
+| --- | --- |
+| Conversación | `search_products`, `get_product_detail`, `get_cart`, `upsert_product_to_cart`, `remove_product_from_cart`, `clean_cart`, `get_and_clear_cart` |
+| Mensajería | `send_message_with_options` |
+| Webview | `search_and_send_products_webview`, `send_catalog_webview`, `send_cart_webview` |
+
+El MCP llama a `https://ecommerce.jelou.ai/api/v1` y `/api/v2`, a la API de mensajería de Jelou y abre el webview en `https://ecommerce-webview.pages.dev`.
+
+### Flujo de pago
+
+1. El bot llama a `POST /api/v1/cart/checkout`. El carrito queda `completed` y la respuesta devuelve `cart_id`.
+2. Un flujo fuera de este repo crea el pago en JelouPay con `cart_id` en la metadata.
+3. Cuando se paga, `jelou-payments` publica `ecommerce.order.paid` en SNS, que llega a una cola SQS FIFO.
+4. El proceso `jelou-pay:consume-order-paid` lee la cola y `CartPaymentCompletionService::markPaid` marca el carrito como `paid`.
+
+El detalle está en `jelou-ecommerce/docs/JELOU_PAY_ORDER_PAID_FLOW.md`.
+
+### Búsqueda
+
+- **v1:** `POST /api/v1/apps/{app}/products/multi_search`, con Scout (Algolia por defecto) y búsqueda semántica sobre PostgreSQL/pgvector.
+- **v2:** `POST /api/v2/apps/{app}/products/search`. Es búsqueda por palabras en PostgreSQL (`unaccent`, `pg_trgm`, sinónimos y detección de categoría), sin embeddings. Se activa por app con `use_v2_search`.
+
+Los planes y guías están en `jelou-ecommerce/docs/V2_SEARCH_PLAN.md` y `docs/search-v2/`.
 
 ## Tecnologías
 
-- TODO
+- **Backend:** Laravel 12, Horizon (supervisores `fast`, `sync`, `images`), Scout, Saloon para las integraciones, Spatie Media Library, Nova 5, Sentry.
+- **Datos:** MySQL (conexión por defecto) y PostgreSQL para búsqueda. Redis para colas.
+- **IA:** OpenAI para mensajes amigables de búsqueda. Pinecone aparece en la configuración.
+- **Frontends:** React 19 + Vite. El webview está desplegado en Cloudflare Pages.
+- **Infra:** Laravel Cloud, AWS SNS + SQS FIFO para el evento de pago.
 
 ## Documentación externa
 
 <CardGroup cols={2}>
-  <Card title="TODO proveedor" icon="arrow-up-right-from-square" href="https://example.com">
-    TODO: para qué sirve este enlace.
+  <Card title="Shopify Admin API" icon="arrow-up-right-from-square" href="https://shopify.dev/docs/api/admin-graphql">
+    Sync de productos de tiendas Shopify.
+  </Card>
+  <Card title="WooCommerce REST API" icon="arrow-up-right-from-square" href="https://woocommerce.github.io/woocommerce-rest-api-docs/">
+    Sync de productos de tiendas WooCommerce.
+  </Card>
+  <Card title="VTEX Catalog API" icon="arrow-up-right-from-square" href="https://developers.vtex.com/docs/api-reference/catalog-api">
+    Sync de productos de tiendas VTEX.
+  </Card>
+  <Card title="Laravel Horizon" icon="arrow-up-right-from-square" href="https://laravel.com/docs/12.x/horizon">
+    Colas de sync, imágenes y tareas rápidas.
   </Card>
 </CardGroup>
 
 ## Información importante
 
-<Warning>TODO: límites, credenciales (dónde están, nunca el valor), ambientes, contactos de soporte, gotchas.</Warning>
+<Warning>
+  - **Hosting:** `.claude/rules/architecture.md` dice que el backend corre en Laravel Cloud, pero en el repo sigue existiendo `vapor.yml`. Confirma cuál está vigente antes de tocar el deploy.
+  - **Pago del carrito:** hasta que se agregó el consumidor de SQS, ningún carrito completado registraba `payment_status`. El webhook viejo `order:success` no llega a ecommerce.
+  - **`ecommerce-dashboard`:** el último cambio es de hace unos 7 meses y el README es el de la plantilla de Vite. Trátalo como prototipo hasta confirmar si está en uso.
+</Warning>
 
 ## Pendientes
 
