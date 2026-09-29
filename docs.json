@@ -3,11 +3,11 @@
   "theme": "mint",
   "name": "Marketplace",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#00B3C7",
+    "light": "#00B3C7",
+    "dark": "#00B3C7"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
   "navigation": {
     "tabs": [
       {
@@ -15,7 +15,10 @@
         "groups": [
           {
             "group": "Inicio",
-            "pages": ["index", "arquitectura"]
+            "pages": [
+              "index",
+              "arquitectura"
+            ]
           },
           {
             "group": "Productos",
@@ -34,11 +37,16 @@
         "groups": [
           {
             "group": "Pendientes",
-            "pages": ["pendientes"]
+            "pages": [
+              "pendientes"
+            ]
           },
           {
             "group": "Specs",
-            "pages": ["specs/plantilla", "specs/ejemplo"]
+            "pages": [
+              "specs/plantilla",
+              "specs/ejemplo"
+            ]
           }
         ]
       }
@@ -49,6 +57,9 @@
     "dark": "/logo/dark.svg"
   },
   "contextual": {
-    "options": ["copy", "view"]
+    "options": [
+      "copy",
+      "view"
+    ]
   }
 }
