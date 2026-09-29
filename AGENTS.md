@@ -15,7 +15,7 @@
 ## Diagrams
 
 - Create every diagram with the `archify` skill, not Mermaid.
-- Keep the archify source in `diagramas/<name>.<type>.json` and the delivered interactive HTML in `diagramas/<name>.html`. `diagramas/` is in `.mintignore`.
+- Keep the archify source in `diagramas/<name>.<type>.json` and the delivered interactive HTML in `diagramas/<name>.html`. `/diagramas/` is in `.mintignore`. Keep the leading slash: `.mintignore` uses `.gitignore` syntax, and an unanchored `diagramas/` also drops `snippets/diagramas/` from the production build (`mint dev` doesn't apply it, so it only breaks in production).
 - Validate and deliver with `--quality showcase`, then run `visual-check`. Don't commit the `*.visual-check.*` sidecars.
 - The site uses authentication, so Mintlify returns 404 for every static file (images, HTML). Don't reference files from `images/`; inline the diagram instead:
   1. Open `diagramas/<name>.html` and use **Export → SVG** (one dual-theme SVG).
