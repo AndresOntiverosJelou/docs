@@ -40,11 +40,11 @@ Enlaza los mockups donde ya viven (Figma, ClickUp):
 Para flujos o arquitectura, genera el diagrama con archify y embébelo como snippet (ver `AGENTS.md`):
 
 ```mdx
-import { ArchifyDiagram } from "/snippets/archify-diagram.jsx";
-import { miSpecSvg } from "/snippets/diagramas/miSpec.jsx";
+import { miSpecLight, miSpecDark } from "/snippets/diagramas/miSpec.jsx";
 
 <Frame>
-  <ArchifyDiagram svg={miSpecSvg} title="Flujo propuesto" />
+  <img className="block dark:hidden" src={miSpecLight} alt="Flujo propuesto" />
+  <img className="hidden dark:block" src={miSpecDark} alt="Flujo propuesto" />
 </Frame>
 ```
 

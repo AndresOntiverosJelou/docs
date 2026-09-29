@@ -4,11 +4,11 @@ description: "Cómo se conectan los productos de Marketplace con la plataforma J
 icon: "sitemap"
 ---
 
-import { ArchifyDiagram } from "/snippets/archify-diagram.jsx";
-import { generalSvg } from "/snippets/diagramas/general.jsx";
+import { generalLight, generalDark } from "/snippets/diagramas/general.jsx";
 
 <Frame>
-  <ArchifyDiagram svg={generalSvg} title="Vista general del equipo Marketplace" />
+  <img className="block dark:hidden" src={generalLight} alt="Vista general del equipo Marketplace" />
+  <img className="hidden dark:block" src={generalDark} alt="Vista general del equipo Marketplace" />
 </Frame>
 
 <Tip>Versión interactiva: abre `diagramas/general.html` en tu navegador. La fuente es `diagramas/general.architecture.json`.</Tip>

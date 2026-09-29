@@ -4,8 +4,7 @@ description: "JelouPay: links de pago, pagos dentro del chat, suscripciones y pa
 icon: "credit-card"
 ---
 
-import { ArchifyDiagram } from "/snippets/archify-diagram.jsx";
-import { pagosSvg } from "/snippets/diagramas/pagos.jsx";
+import { pagosLight, pagosDark } from "/snippets/diagramas/pagos.jsx";
 
 ## Qué es
 
@@ -28,7 +27,8 @@ El core tiene tres piezas:
 ## Arquitectura
 
 <Frame>
-  <ArchifyDiagram svg={pagosSvg} title="Arquitectura del core de Pagos" />
+  <img className="block dark:hidden" src={pagosLight} alt="Arquitectura del core de Pagos" />
+  <img className="hidden dark:block" src={pagosDark} alt="Arquitectura del core de Pagos" />
 </Frame>
 
 <Tip>Versión interactiva: abre `diagramas/pagos.html` en tu navegador. La fuente es `diagramas/pagos.architecture.json`.</Tip>

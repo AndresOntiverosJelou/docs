@@ -19,8 +19,8 @@
 - Validate and deliver with `--quality showcase`, then run `visual-check`. Don't commit the `*.visual-check.*` sidecars.
 - The site uses authentication, so Mintlify returns 404 for every static file (images, HTML). Don't reference files from `images/`; inline the diagram instead:
   1. Open `diagramas/<name>.html` and use **Export → SVG** (one dual-theme SVG).
-  2. Convert it to a snippet: `node -e 'const fs=require("fs");const [,src,n]=process.argv;fs.writeFileSync("snippets/diagramas/"+n+".jsx","export const "+n+"Svg = "+JSON.stringify(fs.readFileSync(src,"utf8"))+";\n")' <export.svg> <name>`
-  3. In the page, import `ArchifyDiagram` from `/snippets/archify-diagram.jsx` and `<name>Svg` from `/snippets/diagramas/<name>.jsx`, then render `<Frame><ArchifyDiagram svg={<name>Svg} title="…" /></Frame>`. The component isolates the SVG in a shadow root and follows Mintlify's light/dark mode.
+  2. Convert it to a snippet: `node diagramas/svg-to-snippet.mjs <export.svg> <name>`. It writes `snippets/diagramas/<name>.jsx` with `<name>Light` and `<name>Dark` data URIs.
+  3. In the page, import both from `/snippets/diagramas/<name>.jsx` and render them inside a `<Frame>` as two `<img>` tags with `className="block dark:hidden"` and `className="hidden dark:block"`. See `productos/pagos.mdx`.
 
 ## Terminology
 
