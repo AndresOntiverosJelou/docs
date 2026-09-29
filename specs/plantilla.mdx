@@ -27,20 +27,24 @@ Qué problema existe hoy y por qué importa.
 
 ## Diseño
 
-Agrega capturas o mockups en `images/` y referéncialos:
+Enlaza los mockups donde ya viven (Figma, ClickUp):
+
+<Warning>No subas capturas a `images/`: el sitio requiere login y Mintlify no sirve archivos estáticos en ese caso.</Warning>
 
 ```mdx
-<Frame caption="Pantalla propuesta">
-  <img src="/images/mi-spec.png" />
-</Frame>
+<Card title="Mockup en Figma" icon="figma" href="https://www.figma.com/...">
+  Pantalla propuesta.
+</Card>
 ```
 
-Para flujos o arquitectura, genera el diagrama con archify y embebe sus PNG (ver `AGENTS.md`):
+Para flujos o arquitectura, genera el diagrama con archify y embébelo como snippet (ver `AGENTS.md`):
 
 ```mdx
+import { ArchifyDiagram } from "/snippets/archify-diagram.jsx";
+import { miSpecSvg } from "/snippets/diagramas/miSpec.jsx";
+
 <Frame>
-  <img className="block dark:hidden" src="/images/diagramas/mi-spec-light.png" alt="Flujo propuesto" />
-  <img className="hidden dark:block" src="/images/diagramas/mi-spec-dark.png" alt="Flujo propuesto" />
+  <ArchifyDiagram svg={miSpecSvg} title="Flujo propuesto" />
 </Frame>
 ```
 

@@ -4,6 +4,9 @@ description: "Catálogo de apps MCP, OAuth2 con terceros y MCP Gateway para los 
 icon: "store"
 ---
 
+import { ArchifyDiagram } from "/snippets/archify-diagram.jsx";
+import { marketplaceSvg } from "/snippets/diagramas/marketplace.jsx";
+
 ## Qué es
 
 Marketplace es el ecosistema de apps de la plataforma Jelou. Mantiene el catálogo de apps MCP (Model Context Protocol) y gestiona los flujos OAuth2 con terceros, como Google, Slack, HubSpot, Shopify, Meta Ads, Linear y Pipedream. Además, expone un MCP Gateway que usa el workflow engine para ejecutar tools contra APIs externas reales.
@@ -22,8 +25,7 @@ Algunos de los MCP que viven en `marketplace-apps`: Alegra, AgendaPro, Bitrix, C
 ## Arquitectura
 
 <Frame>
-  <img className="block dark:hidden" src="/images/diagramas/marketplace-light.png" alt="Arquitectura de Marketplace" />
-  <img className="hidden dark:block" src="/images/diagramas/marketplace-dark.png" alt="Arquitectura de Marketplace" />
+  <ArchifyDiagram svg={marketplaceSvg} title="Arquitectura de Marketplace" />
 </Frame>
 
 <Tip>Versión interactiva: abre `diagramas/marketplace.html` en tu navegador. La fuente es `diagramas/marketplace.architecture.json`.</Tip>

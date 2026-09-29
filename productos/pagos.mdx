@@ -4,6 +4,9 @@ description: "JelouPay: links de pago, pagos dentro del chat, suscripciones y pa
 icon: "credit-card"
 ---
 
+import { ArchifyDiagram } from "/snippets/archify-diagram.jsx";
+import { pagosSvg } from "/snippets/diagramas/pagos.jsx";
+
 ## Qué es
 
 Pagos (JelouPay) permite cobrar desde las conversaciones de Jelou. Un bot puede generar un link de pago, cobrar dentro de un WhatsApp Flow o cobrar de forma recurrente. Todo pasa por una capa común que abstrae las pasarelas (PSP) de cada país.
@@ -25,8 +28,7 @@ El core tiene tres piezas:
 ## Arquitectura
 
 <Frame>
-  <img className="block dark:hidden" src="/images/diagramas/pagos-light.png" alt="Arquitectura del core de Pagos" />
-  <img className="hidden dark:block" src="/images/diagramas/pagos-dark.png" alt="Arquitectura del core de Pagos" />
+  <ArchifyDiagram svg={pagosSvg} title="Arquitectura del core de Pagos" />
 </Frame>
 
 <Tip>Versión interactiva: abre `diagramas/pagos.html` en tu navegador. La fuente es `diagramas/pagos.architecture.json`.</Tip>

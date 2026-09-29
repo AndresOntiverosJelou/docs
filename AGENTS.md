@@ -17,7 +17,10 @@
 - Create every diagram with the `archify` skill, not Mermaid.
 - Keep the archify source in `diagramas/<name>.<type>.json` and the delivered interactive HTML in `diagramas/<name>.html`. `diagramas/` is in `.mintignore`.
 - Validate and deliver with `--quality showcase`, then run `visual-check`. Don't commit the `*.visual-check.*` sidecars.
-- The site uses authentication, so Mintlify does not serve static HTML files and an `<iframe>` to the HTML will not load. Export light and dark PNGs from the viewer (**Export → PNG**, once per theme) to `images/diagramas/<name>-light.png` and `-dark.png`, and embed both with `className="block dark:hidden"` / `className="hidden dark:block"` inside a `<Frame>`.
+- The site uses authentication, so Mintlify returns 404 for every static file (images, HTML). Don't reference files from `images/`; inline the diagram instead:
+  1. Open `diagramas/<name>.html` and use **Export → SVG** (one dual-theme SVG).
+  2. Convert it to a snippet: `node -e 'const fs=require("fs");const [,src,n]=process.argv;fs.writeFileSync("snippets/diagramas/"+n+".jsx","export const "+n+"Svg = "+JSON.stringify(fs.readFileSync(src,"utf8"))+";\n")' <export.svg> <name>`
+  3. In the page, import `ArchifyDiagram` from `/snippets/archify-diagram.jsx` and `<name>Svg` from `/snippets/diagramas/<name>.jsx`, then render `<Frame><ArchifyDiagram svg={<name>Svg} title="…" /></Frame>`. The component isolates the SVG in a shadow root and follows Mintlify's light/dark mode.
 
 ## Terminology
 
