@@ -19,7 +19,6 @@ El catálogo puede ser propio o sincronizado desde la tienda del cliente: Shopif
 | --- | --- | --- |
 | [`jelou-ecommerce`](https://github.com/JelouLatam/jelou-ecommerce) | Backend de Jelou Shop: productos, categorías, sucursales, carritos, cupones, búsqueda, sync con tiendas y métricas | PHP 8.3, Laravel 12, Horizon, Scout, Sanctum, Nova 5, Saloon, MySQL, PostgreSQL, Redis |
 | [`ecommerce-webview`](https://github.com/JelouLatam/ecommerce-webview) | Webview que el bot abre en WhatsApp: catálogo, detalle de producto, carrito y orden confirmada | React 19, Vite 7, Tailwind 4, TanStack Query, wouter, i18next |
-| [`ecommerce-dashboard`](https://github.com/JelouLatam/ecommerce-dashboard) | Admin de catálogo: productos, categorías, colecciones, atributos e importación | React 19, Vite 7, Tailwind 4, shadcn/ui, Cortex |
 | [`marketplace-apps`](https://github.com/JelouLatam/marketplace-apps) → `mcps/jelou-shop-workspace` | MCP `jelou-shop` con las tools que usa el bot | Deno, TypeScript |
 
 ## Arquitectura
@@ -59,7 +58,7 @@ Los planes y guías están en `jelou-ecommerce/docs/V2_SEARCH_PLAN.md` y `docs/s
 - **Backend:** Laravel 12, Horizon (supervisores `fast`, `sync`, `images`), Scout, Saloon para las integraciones, Spatie Media Library, Nova 5, Sentry.
 - **Datos:** MySQL (conexión por defecto) y PostgreSQL para búsqueda. Redis para colas.
 - **IA:** OpenAI para mensajes amigables de búsqueda. Pinecone aparece en la configuración.
-- **Frontends:** React 19 + Vite. El webview está desplegado en Cloudflare Pages.
+- **Webview:** React 19 + Vite, desplegado en Cloudflare Pages.
 - **Infra:** Laravel Cloud, AWS SNS + SQS FIFO para el evento de pago.
 
 ## Documentación externa
@@ -84,7 +83,6 @@ Los planes y guías están en `jelou-ecommerce/docs/V2_SEARCH_PLAN.md` y `docs/s
 <Warning>
   - **Hosting:** `.claude/rules/architecture.md` dice que el backend corre en Laravel Cloud, pero en el repo sigue existiendo `vapor.yml`. Confirma cuál está vigente antes de tocar el deploy.
   - **Pago del carrito:** hasta que se agregó el consumidor de SQS, ningún carrito completado registraba `payment_status`. El webhook viejo `order:success` no llega a ecommerce.
-  - **`ecommerce-dashboard`:** el último cambio es de hace unos 7 meses y el README es el de la plantilla de Vite. Trátalo como prototipo hasta confirmar si está en uso.
 </Warning>
 
 ## Pendientes
