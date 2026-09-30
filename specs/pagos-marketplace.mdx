@@ -63,9 +63,19 @@ Los números coinciden con los marcadores del [mockup](#diseño).
 
 ## Diseño
 
-<iframe srcDoc={pagosMarketplaceHtml} title="Mockup: pagos en el Marketplace" style={{ width: "100%", height: "900px", border: "1px solid #e5e7eb", borderRadius: "12px" }} />
+El mockup reproduce la UI actual de Jelou (Marketplace, builder y panel del AI Agent) con los cambios marcados. Tiene cinco pantallas:
 
-<Tip>Fuente: `mockups/pagos-marketplace.html`. Tras editarla, regenera el snippet con `node mockups/html-to-snippet.mjs pagos-marketplace`.</Tip>
+| Pantalla | Qué muestra | Ítems |
+| --- | --- | --- |
+| A | Detalle de la integración Wompi con la sección **Tools para AI Agent (MCP)** y Pago WebView eliminada | 1, 4, 5 |
+| B | **Agregar tool** en el AI Agent: Wompi, Mercado Pago y Nuvei bajo **Integraciones MCP** | 6 |
+| C | Herramientas del agente con Wompi y Mercado Pago activos a la vez | 3, 5, 7 |
+| D | Parámetros de la tool: los 13 de Pago WebView frente a los 2 propuestos | 8 |
+| E | Modal del MCP Jelou Payments que se retira | — |
+
+<iframe srcDoc={pagosMarketplaceHtml} title="Mockup: pagos en el Marketplace" style={{ width: "100%", height: "860px", border: "1px solid #e5e7eb", borderRadius: "12px", background: "#ECEEF2" }} />
+
+<Tip>Para verlo a tamaño real abre `mockups/pagos-marketplace.html` en el navegador. La fuente es `mockups/pagos-marketplace.tpl.html`; tras editarla, regenera con `node mockups/build.mjs pagos-marketplace`.</Tip>
 
 ## Criterios de aceptación
 
