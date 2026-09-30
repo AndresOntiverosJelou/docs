@@ -28,7 +28,8 @@
               "productos/pagos",
               "productos/kyc",
               "productos/voice",
-              "productos/integraciones"
+              "productos/integraciones",
+              "productos/visa"
             ]
           }
         ]

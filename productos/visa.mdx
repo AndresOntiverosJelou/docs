@@ -1,0 +1,121 @@
+---
+title: "Visa Agentic Commerce"
+description: "Integración en exploración con Visa para que los agentes de Jelou paguen por el usuario desde WhatsApp."
+icon: "credit-card"
+---
+
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { visaLight, visaDark } from "/snippets/diagramas/visa.jsx";
+
+<Note>Integración en exploración. Todavía no hay código ni repositorio. Los documentos de Visa son confidenciales: no los compartas fuera de Jelou.</Note>
+
+## Qué es, en simple
+
+Hoy el usuario le dice al bot qué quiere y luego paga él mismo. Con *Agentic Commerce*, **el agente de Jelou paga por el usuario**. El usuario le da permiso una vez y fija un límite, y el agente compra o paga facturas dentro de ese límite.
+
+Visa pone la parte de confianza en tres pasos:
+
+1. **Quién es el usuario:** confirma su identidad con la huella o la cara (passkey).
+2. **Hasta dónde puede pagar el agente:** guarda un *mandato* con un monto máximo y una fecha de vencimiento.
+3. **Con qué se paga:** entrega un token de un solo uso en lugar del número de tarjeta real.
+
+Visa lo propone para pagos entre empresas por WhatsApp: pagos a proveedores, gastos corporativos y pagos de servicios.
+
+## Arquitectura
+
+<DiagramViewer light={visaLight} dark={visaDark} alt="Integración propuesta con Visa Agentic Commerce" />
+
+<Tip>Versión interactiva: abre `diagramas/visa.html` en tu navegador. La fuente es `diagramas/visa.architecture.json`.</Tip>
+
+### Camino recomendado: ICC
+
+ICC (*Intelligent Commerce Connect*) es la puerta de entrada que Visa recomienda. Con ICC, Jelou no toca el número de tarjeta.
+
+1. El usuario pide pagar en WhatsApp.
+2. La primera vez, el agente le manda un link. El link abre un webview de Jelou Sites donde el usuario registra su tarjeta y su passkey. La tarjeta se captura en campos alojados por Visa (Flex Microform), así que nunca pasa por los servidores de Jelou.
+3. El agente crea un mandato en ICC con el monto máximo y la vigencia.
+4. Cuando toca pagar, ICC entrega un token y un criptograma de un solo uso.
+5. Jelou envía ese token a un **procesador de pagos** y le confirma a Visa el resultado: aprobado, rechazado o fallido.
+
+<Warning>ICC no cobra. Solo entrega la credencial. Necesitamos un procesador o adquirente que acepte tokens de red de Visa.</Warning>
+
+### Alternativa: Agentic Assist
+
+Agentic Assist (*B2BA ProxyPay API*) es más simple: Visa paga la factura por nosotros y llena el formulario de pago en el portal del proveedor con un navegador automatizado.
+
+1. Jelou pregunta qué datos pide el proveedor. La API devuelve la lista de campos.
+2. Jelou envía los campos llenos y recibe un `correlationId`.
+3. Jelou consulta el estado hasta que el pago queda `COMPLETED` o `FAILED`.
+
+Encaja muy bien con un bot, porque la lista de campos se puede convertir en preguntas. El problema es que hoy pide el número de tarjeta y el CVV en claro, lo que nos obligaría a cumplir PCI DSS. Además, el producto sigue en desarrollo y solo tiene ambiente de pruebas.
+
+## Comparación
+
+| | ICC | Agentic Assist | VIC + TAP directo |
+| --- | --- | --- | --- |
+| Qué hace | Tokens, passkeys y mandatos | Paga en el portal del proveedor | Integración completa con Visa |
+| Esfuerzo | Medio | Bajo | Alto |
+| Riesgo PCI | Bajo | Alto | Alto |
+| Estado | Sandbox disponible | En desarrollo | Requiere certificación |
+| Recomendación | Empezar aquí | Piloto de pago a proveedores | Después del piloto |
+
+## Qué debemos hacer para integrarnos
+
+<Steps>
+  <Step title="Responder a Visa">
+    Proponer ICC como modelo base y Agentic Assist como piloto de pago a proveedores. Enviar las preguntas abiertas de abajo.
+  </Step>
+  <Step title="Crear las cuentas">
+    Registrarse en el Visa Developer Platform y en el sandbox de Agentic Commerce. Elegir bien el *Organization ID*, porque no se puede cambiar.
+  </Step>
+  <Step title="Configurar la seguridad">
+    Generar los certificados MLE de request y response en el Business Center de prueba. Guardarlos como secretos, nunca en el repositorio.
+  </Step>
+  <Step title="Construir el webview">
+    Hacer una página en Jelou Sites que registre la tarjeta con Flex Microform y la passkey con VTS. Probar que funcione dentro del navegador de WhatsApp, en Android y en iOS.
+  </Step>
+  <Step title="Conectar el agente">
+    Crear una tool que llame a ICC: enrolar la tarjeta, crear y cancelar mandatos, obtener la credencial y confirmar la transacción.
+  </Step>
+  <Step title="Definir el procesador">
+    Elegir con Visa el procesador que recibe el token y conectarlo, por ejemplo con el core de [Pagos](/productos/pagos).
+  </Step>
+  <Step title="Probar y certificar">
+    Completar una transacción de punta a punta en el sandbox, pedir acceso a producción y generar credenciales nuevas. Las del sandbox nunca se reutilizan.
+  </Step>
+</Steps>
+
+## Preguntas abiertas para Visa
+
+1. ¿Agentic Assist acepta un token en lugar del número de tarjeta y el CVV?
+2. ¿Cuándo sale Agentic Assist a producción y cuánto tarda un pago en completarse?
+3. ¿Qué procesador usamos para el token de ICC? ¿Lo cubre Visa Acceptance?
+4. ¿En qué países y monedas de LatAm está disponible? Los ejemplos solo muestran USD y Estados Unidos.
+5. ¿Jelou entra como *Agent Provider* (dueño de la experiencia) o como *Agent Enabler* (plataforma para otros agentes)?
+6. ¿Cuáles son las tarifas?
+7. ¿Las passkeys funcionan dentro del navegador de WhatsApp?
+
+## Documentación externa
+
+<CardGroup cols={2}>
+  <Card title="Visa Developer Platform" icon="arrow-up-right-from-square" href="https://developer.visa.com/identity/user/register">
+    Registro de la cuenta de desarrollador.
+  </Card>
+  <Card title="Sandbox de Agentic Commerce" icon="arrow-up-right-from-square" href="https://developer.visaacceptance.com/hello-world/agentic-sandbox.html">
+    Sandbox de ICC.
+  </Card>
+  <Card title="Visa Intelligent Commerce" icon="arrow-up-right-from-square" href="https://developer.visa.com/capabilities/visa-intelligent-commerce/docs">
+    Especificación de VIC (acceso restringido).
+  </Card>
+  <Card title="Trusted Agent Protocol" icon="arrow-up-right-from-square" href="https://github.com/visa/trusted-agent-protocol">
+    Repositorio público de TAP.
+  </Card>
+</CardGroup>
+
+## Información importante
+
+<Warning>
+  - **Documentos confidenciales:** los PDFs de Visa están en `integraciones/visa-agentic-commerce/docs/`, fuera del sitio publicado. El análisis técnico completo está en `integraciones/visa-agentic-commerce/analisis.md`.
+  - **Estado de los ambientes:** VIC y VTS están en certificación y producción. TAP está en sandbox y producción. Agentic Assist solo tiene ambiente de QA.
+  - **Tiempos:** Visa estima unos 10 días hábiles por etapa solo para configurar los ambientes.
+</Warning>

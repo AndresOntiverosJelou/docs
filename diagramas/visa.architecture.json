@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Visa Agentic Commerce: integración propuesta",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "WhatsApp",
+      "sublabel": "empleado o administrador",
+      "pos": [40, 300],
+      "size": [170, 64]
+    },
+    {
+      "id": "bot",
+      "type": "backend",
+      "label": "Agente de Jelou",
+      "sublabel": "workflow",
+      "pos": [300, 300],
+      "size": [170, 64]
+    },
+    {
+      "id": "site",
+      "type": "frontend",
+      "label": "Webview (Jelou Sites)",
+      "sublabel": "passkey y tarjeta",
+      "pos": [300, 110],
+      "size": [170, 64]
+    },
+    {
+      "id": "proc",
+      "type": "external",
+      "label": "Procesador",
+      "sublabel": "por definir",
+      "pos": [300, 490],
+      "size": [170, 64]
+    },
+    {
+      "id": "vts",
+      "type": "security",
+      "label": "VTS · Passkeys",
+      "sublabel": "tokeniza y autentica",
+      "pos": [600, 110],
+      "size": [170, 64]
+    },
+    {
+      "id": "icc",
+      "type": "cloud",
+      "label": "Visa ICC",
+      "sublabel": "mandatos y credenciales",
+      "pos": [600, 300],
+      "size": [170, 64]
+    },
+    {
+      "id": "assist",
+      "type": "cloud",
+      "label": "Agentic Assist",
+      "sublabel": "ProxyPay API",
+      "pos": [600, 490],
+      "size": [170, 64]
+    },
+    {
+      "id": "portal",
+      "type": "external",
+      "label": "Portal del proveedor",
+      "sublabel": "formulario de pago",
+      "pos": [880, 490],
+      "size": [170, 64]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Visa",
+      "wraps": ["vts", "icc", "assist"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-to-bot",
+      "from": "user",
+      "to": "bot",
+      "label": "pide pagar",
+      "variant": "emphasis"
+    },
+    {
+      "id": "bot-to-site",
+      "from": "bot",
+      "to": "site",
+      "label": "abre link"
+    },
+    {
+      "id": "site-to-vts",
+      "from": "site",
+      "to": "vts",
+      "label": "biometría",
+      "variant": "security"
+    },
+    {
+      "id": "bot-to-icc",
+      "from": "bot",
+      "to": "icc",
+      "label": "mandato",
+      "variant": "emphasis"
+    },
+    {
+      "id": "bot-to-proc",
+      "from": "bot",
+      "to": "proc",
+      "label": "token + criptograma",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "bot-to-assist",
+      "from": "bot",
+      "to": "assist",
+      "label": "paga factura",
+      "variant": "dashed"
+    },
+    {
+      "id": "assist-to-portal",
+      "from": "assist",
+      "to": "portal",
+      "label": "llena y paga",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Camino recomendado: ICC",
+      "items": [
+        "El usuario autoriza con su huella en un webview",
+        "Jelou crea un mandato con límite y vigencia",
+        "Visa entrega un token de un solo uso para cobrar"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Alternativa: Agentic Assist",
+      "items": [
+        "Visa paga por nosotros en el portal del proveedor",
+        "Hoy pide la tarjeta en claro (riesgo PCI)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Falta definir",
+      "items": [
+        "Procesador que reciba el token",
+        "Disponibilidad en LatAm y tarifas"
+      ]
+    }
+  ]
+}
