@@ -48,7 +48,8 @@
             "pages": [
               "specs/plantilla",
               "specs/ejemplo",
-              "specs/demos-kyc"
+              "specs/demos-kyc",
+              "specs/pagos-marketplace"
             ]
           }
         ]

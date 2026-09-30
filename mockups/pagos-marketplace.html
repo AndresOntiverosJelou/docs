@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagos en el Marketplace</title>
+<style>
+  :root {
+    --teal: #00b3c7; --teal-soft: #e6f7f9; --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb;
+    --bg: #f7f8fa; --card: #fff; --green: #10b981; --green-soft: #e7f8f1; --red: #ef4444; --red-soft: #fdecec;
+    --amber: #b45309; --amber-soft: #fef3c7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px 40px; background: var(--bg); color: var(--ink);
+    font: 13px/1.45 Inter, "Segoe UI", system-ui, sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 36px 0 4px; display: flex; gap: 8px; align-items: center; }
+  .lead { color: var(--muted); margin: 0 0 12px; max-width: 760px; }
+  .tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+  .tag.new { background: var(--green-soft); color: #047857; }
+  .tag.del { background: var(--red-soft); color: #b91c1c; }
+  .tag.tbd { background: var(--amber-soft); color: var(--amber); }
+
+  /* Marcador numerado: coincide con el ítem de la spec */
+  .n { display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 50%;
+    background: var(--teal); color: #fff; font-size: 11px; font-weight: 700; box-shadow: 0 0 0 3px #fff; }
+  .pin { position: absolute; top: -10px; right: -10px; z-index: 2; }
+
+  /* Flujo */
+  .flow { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
+  .step { flex: 1 1 180px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; position: relative; }
+  .step b { display: block; margin-bottom: 2px; }
+  .step small { color: var(--muted); }
+  .arrow { align-self: center; color: var(--teal); font-size: 20px; }
+
+  /* Ventanas */
+  .screen { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: visible;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-weight: 600; }
+  .bar .crumb { color: var(--muted); font-weight: 400; }
+  .body { padding: 16px; }
+  .grid2 { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .logo { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); display: grid; place-items: center; font-weight: 800; flex: none; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .btn { display: block; text-align: center; padding: 8px; border-radius: 8px; font-weight: 600; margin-top: 10px; }
+  .btn.gray { background: #f1f2f4; }
+  .btn.danger { border: 1px solid var(--red); color: var(--red); }
+  .meta { border: 1px solid var(--line); border-radius: 8px; margin-top: 12px; }
+  .meta div { display: flex; justify-content: space-between; padding: 7px 10px; border-top: 1px solid var(--line); color: var(--muted); }
+  .meta div:first-child { border-top: 0; }
+
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; margin: 14px 0 6px; }
+  .list { border: 1px solid var(--line); border-radius: 10px; position: relative; }
+  .item { padding: 10px 12px; border-top: 1px solid var(--line); position: relative; }
+  .item:first-child { border-top: 0; }
+  .item b { display: block; }
+  .item p { margin: 2px 0 0; color: var(--muted); }
+  .item.added { background: #f3fcfd; }
+  .item.removed { background: var(--red-soft); }
+  .item.removed b, .item.removed p { text-decoration: line-through; color: #9ca3af; }
+
+  .search { border: 1px solid var(--teal); border-radius: 8px; padding: 7px 10px; margin-bottom: 8px; }
+  .toggle { width: 30px; height: 17px; border-radius: 999px; background: #d1d5db; position: relative; flex: none; margin-left: auto; }
+  .toggle::after { content: ""; position: absolute; width: 13px; height: 13px; top: 2px; left: 2px; border-radius: 50%; background: #fff; }
+  .toggle.on { background: var(--teal); }
+  .toggle.on::after { left: 15px; }
+  .mcp { border: 1px solid var(--line); border-radius: 10px; margin-top: 10px; position: relative; }
+  .mcp > .row { padding: 10px 12px; }
+  .mcp .tools { border-top: 1px solid var(--line); padding: 4px 12px 8px 46px; }
+  .mcp .tools div { padding: 5px 0; display: flex; align-items: center; gap: 8px; }
+  .chip { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+
+  /* Antes / después */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .vs { grid-template-columns: 1fr; } }
+  .col-h { font-weight: 700; margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
+  .param { display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; border-top: 1px solid var(--line); }
+  .param:first-child { border-top: 0; }
+  .param code { font-size: 12px; }
+  .param span { color: var(--muted); font-size: 12px; }
+  .param.gone code { text-decoration: line-through; color: #9ca3af; }
+  .param .where { font-size: 11px; color: var(--amber); white-space: nowrap; }
+  .note { margin-top: 10px; padding: 10px 12px; background: var(--amber-soft); color: #78350f; border-radius: 8px; }
+  .legend { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .legend li { display: flex; gap: 8px; align-items: flex-start; }
+</style>
+</head>
+<body>
+
+<h1>Pagos en el Marketplace: cómo debe quedar</h1>
+<p class="lead">Cada número <span class="n">1</span> coincide con un ítem de la sección <b>Qué hace falta</b> de la spec. Este mockup solo muestra lo que cambia; lo demás queda igual que hoy.</p>
+
+<!-- ============ FLUJO ============ -->
+<h2>Flujo completo</h2>
+<p class="lead">Instalas la integración de pagos como hoy. La plataforma crea su MCP por detrás y el AI Agent lo ve como a Stripe.</p>
+<div class="flow">
+  <div class="step"><span class="n pin">1</span><b>Instalas Wompi</b><small>Mismo flujo y mismas credenciales de hoy. No hay pasos nuevos.</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><span class="n pin">2</span><b>Se crea el MCP "Wompi"</b><small>Automático. Uno por integración instalada.</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><span class="n pin">6</span><b>Aparece en el AI Agent</b><small>En <strong>Agregar tool</strong> → Integraciones MCP, con 2 tools.</small></div>
+</div>
+
+<!-- ============ PANTALLA A ============ -->
+<h2>A · Detalle de la integración <span class="tag new">Cambia</span></h2>
+<p class="lead">Marketplace → Pagos &amp; Procesamiento → Wompi.</p>
+<div class="screen">
+  <div class="bar"><span class="crumb">Jelou Marketplace ›</span> Marketplace</div>
+  <div class="body grid2">
+    <div>
+      <div class="row"><div class="logo">W</div><b style="font-size:16px">Wompi</b></div>
+      <p style="color:var(--muted)">Pasarela de pagos digital del Grupo Bancolombia.</p>
+      <span class="btn gray">Pasar a producción</span>
+      <span class="btn danger">Eliminar integración</span>
+      <div class="meta">
+        <div><span>Tools</span><b style="color:var(--ink)">2</b></div>
+        <div><span>Disponibilidad</span><span>Colombia</span></div>
+        <div><span>Categoría</span><span>Pagos &amp; Procesamiento</span></div>
+      </div>
+    </div>
+    <div>
+      <b>Tools</b>
+      <div class="label">Tools para AI Agent (MCP)</div>
+      <div class="list">
+        <span class="n pin">4</span>
+        <div class="item added"><b>Generar enlace de pago</b><p>Genera un link de pago (o un código de pago, según el proveedor) y crea la orden en el core de pagos de Jelou. Úsalo cuando el usuario ya confirmó qué va a pagar y por cuánto.</p></div>
+        <div class="item added"><b>Obtener estado del pedido</b><p>Consulta si una orden se pagó, sigue pendiente, falló o fue cancelada. Requiere el id de la orden que devolvió el cobro.</p></div>
+      </div>
+      <div class="label">Tools nativas</div>
+      <div class="list">
+        <span class="n pin">5</span>
+        <div class="item removed"><b>Pago WebView</b><p>Se elimina.</p></div>
+        <div class="item"><b>Pago Confirmación Externa</b><p>Procesa pagos con confirmación externa. <span class="tag tbd">Por confirmar</span></p></div>
+      </div>
+    </div>
+  </div>
+</div>
+<ul class="legend">
+  <li><span class="n">4</span>El detalle muestra las 2 tools que el MCP expone al AI Agent.</li>
+  <li><span class="n">5</span>La tool <b>Pago WebView</b> desaparece del detalle y del AI Agent.</li>
+</ul>
+
+<!-- ============ PANTALLA B ============ -->
+<h2>B · AI Agent → Agregar tool <span class="tag new">Cambia</span></h2>
+<p class="lead">Hoy buscas "mercado pago" y no sale nada. Solo aparece Stripe porque es el único con MCP.</p>
+<div class="screen" style="max-width:520px">
+  <div class="bar">＋ Agregar tool</div>
+  <div class="body">
+    <div class="search">🔍 pago</div>
+    <div class="label" style="margin-top:6px">Integraciones MCP</div>
+    <div class="list">
+      <span class="n pin">6</span>
+      <div class="item"><div class="row"><div class="logo" style="color:#635bff">S</div><div><b>Stripe</b><p>Sin cambios: ya es MCP.</p></div></div></div>
+      <div class="item added"><div class="row"><div class="logo">W</div><div><b>Wompi</b><p>Generar enlace de pago · Obtener estado del pedido</p></div></div></div>
+      <div class="item added"><div class="row"><div class="logo" style="color:#009ee3">MP</div><div><b>Mercado Pago</b><p>Generar enlace de pago · Obtener estado del pedido</p></div></div></div>
+      <div class="item added"><div class="row"><div class="logo">N</div><div><b>Nuvei</b><p>Generar enlace de pago · Obtener estado del pedido</p></div></div></div>
+    </div>
+    <p style="color:var(--muted);margin:8px 0 0">Solo salen las integraciones de pago <b>instaladas</b> en la company.</p>
+  </div>
+</div>
+
+<!-- ============ PANTALLA C ============ -->
+<h2>C · AI Agent → Herramientas <span class="tag new">Cambia</span></h2>
+<p class="lead">Un agente puede tener varios proveedores a la vez. Cada uno trae sus 2 tools.</p>
+<div class="screen" style="max-width:620px">
+  <div class="bar">AI Agent <span class="crumb">· Herramientas</span></div>
+  <div class="body">
+    <div class="list">
+      <div class="item"><div class="row">Enviar mensajes interactivos<span class="toggle"></span></div></div>
+      <div class="item"><div class="row">Transferir a Asesor<span class="toggle"></span></div></div>
+      <div class="item removed"><div class="row"><b style="display:inline">Pago WebView</b><span class="n" style="margin-left:auto">5</span></div></div>
+    </div>
+    <div class="mcp">
+      <span class="n pin">7</span>
+      <div class="row"><div class="logo">W</div><div><b>Wompi</b> <span class="chip">MCP</span></div><span class="toggle on"></span></div>
+      <div class="tools">
+        <div><span class="toggle on" style="margin:0"></span>Generar enlace de pago</div>
+        <div><span class="toggle on" style="margin:0"></span>Obtener estado del pedido</div>
+      </div>
+    </div>
+    <div class="mcp">
+      <span class="n pin">3</span>
+      <div class="row"><div class="logo" style="color:#009ee3">MP</div><div><b>Mercado Pago</b> <span class="chip">MCP</span></div><span class="toggle on"></span></div>
+      <div class="tools">
+        <div><span class="toggle on" style="margin:0"></span>Generar enlace de pago</div>
+        <div><span class="toggle on" style="margin:0"></span>Obtener estado del pedido</div>
+      </div>
+    </div>
+  </div>
+</div>
+<ul class="legend">
+  <li><span class="n">3</span>Varios proveedores de pago en la misma company y el mismo agente, cada uno con su propio MCP.</li>
+  <li><span class="n">7</span>Cada MCP de pagos expone exactamente 2 tools.</li>
+</ul>
+
+<!-- ============ PANTALLA D ============ -->
+<h2>D · Inputs de la tool <span class="tag new">Cambia</span></h2>
+<p class="lead">Hoy Pago WebView pide 13 parámetros que nadie sabe llenar. La tool nueva solo le pide al AI lo que sabe de la conversación.</p>
+<div class="vs">
+  <div>
+    <div class="col-h"><span class="tag del">Antes</span> Pago WebView · 13 parámetros</div>
+    <div class="list" style="background:#fff">
+      <div class="param gone"><code>provider</code><span class="where">por detrás</span></div>
+      <div class="param gone"><code>botId</code><span class="where">por detrás</span></div>
+      <div class="param gone"><code>botNumber</code><span class="where">por detrás</span></div>
+      <div class="param gone"><code>botType</code><span class="where">por detrás</span></div>
+      <div class="param gone"><code>environment</code><span class="where">por detrás</span></div>
+      <div class="param gone"><code>currency</code><span class="where">por detrás</span></div>
+      <div class="param gone"><code>iva</code><span class="where">por detrás</span></div>
+      <div class="param gone"><code>expiration_time</code><span class="where">por detrás</span></div>
+      <div class="param"><code>concept</code><span>pasa a la tool nueva</span></div>
+      <div class="param"><span>… y 4 más</span></div>
+    </div>
+  </div>
+  <div style="position:relative">
+    <span class="n pin">8</span>
+    <div class="col-h"><span class="tag new">Después</span> Generar enlace de pago</div>
+    <div class="list" style="background:#fff">
+      <div class="param"><code>amount</code><span>Monto a cobrar</span></div>
+      <div class="param"><code>concept</code><span>Qué está pagando el usuario</span></div>
+    </div>
+    <div class="col-h" style="margin-top:14px"><span class="tag new">Después</span> Obtener estado del pedido</div>
+    <div class="list" style="background:#fff">
+      <div class="param"><code>orderId</code><span>Id que devolvió el cobro</span></div>
+    </div>
+    <div class="note"><b>Por definir:</b> la lista exacta de inputs y cómo se resuelve por detrás cada dato técnico. Esto es una propuesta.</div>
+  </div>
+</div>
+
+<!-- ============ SE ELIMINA ============ -->
+<h2>E · Se reemplaza <span class="tag tbd">Por confirmar</span></h2>
+<p class="lead">El MCP <b>Jelou Payments</b> actual obliga a elegir un solo proveedor por company y pide inputs que cambian según el proveedor. El nuevo esquema lo cubre.</p>
+<div class="screen" style="max-width:420px;opacity:.75">
+  <div class="bar">🛡 Credenciales API · Jelou Payments</div>
+  <div class="body">
+    <div class="list">
+      <div class="item removed"><b>Proveedor de pago</b><p>Un solo proveedor por company</p></div>
+      <div class="item removed"><b>Entorno · Token del core · Moneda · País · IVA · ID de la app</b><p>Datos técnicos que el cliente no conoce</p></div>
+      <div class="item removed"><b>Wompi · Llave pública / privada …</b><p>Campos que cambian según el proveedor</p></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

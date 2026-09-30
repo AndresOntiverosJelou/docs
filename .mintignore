@@ -11,3 +11,6 @@ drafts/
 
 # Material de integraciones con terceros (PDFs, notas)
 /integraciones/
+
+# Fuente de los mockups HTML de las specs
+/mockups/
