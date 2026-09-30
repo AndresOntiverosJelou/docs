@@ -46,7 +46,8 @@
             "group": "Specs",
             "pages": [
               "specs/plantilla",
-              "specs/ejemplo"
+              "specs/ejemplo",
+              "specs/demos-kyc"
             ]
           }
         ]
