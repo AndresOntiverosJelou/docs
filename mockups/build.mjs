@@ -1,8 +1,7 @@
 // Uso: node mockups/build.mjs <nombre>
 // Toma mockups/<nombre>.tpl.html, reemplaza {{icon}} por el SVG de Lucide (mockups/lucide.json,
 // extraído de lucide-react, la librería de íconos de jelou-apps), escribe mockups/<nombre>.html
-// y el snippet snippets/mockups/<nombreCamel>.jsx para renderizarlo con <iframe srcDoc={...} />.
-// El sitio requiere login y Mintlify no sirve archivos estáticos, así que el HTML viaja dentro de la página.
+// y cada pantalla suelta en mockups/shots/ (las convierte en PNG mockups/shots.mjs).
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
 const [name] = process.argv.slice(2);
@@ -19,7 +18,12 @@ const html = readFileSync(`mockups/${name}.tpl.html`, "utf8").replace(/\{\{([a-z
 });
 writeFileSync(`mockups/${name}.html`, html);
 
-const id = name.replace(/-(\w)/g, (_, c) => c.toUpperCase());
-mkdirSync("snippets/mockups", { recursive: true });
-writeFileSync(`snippets/mockups/${id}.jsx`, `// Generado desde mockups/${name}.tpl.html con mockups/build.mjs. No editar a mano.\nexport const ${id}Html = ${JSON.stringify(html)};\n`);
-console.log(`mockups/${name}.html y snippets/mockups/${id}.jsx listos`);
+// Cada bloque <!-- shot:x --> … <!-- /shot:x --> sale también como mockups/shots/<nombre>-x.html
+// para capturarlo como PNG con Chrome headless (ver mockups/shots.mjs).
+mkdirSync("mockups/shots", { recursive: true });
+const head = html.slice(0, html.indexOf("</head>") + 7);
+for (const [, id, body] of html.matchAll(/<!-- shot:(\w+) -->([\s\S]*?)<!-- \/shot:\1 -->/g)) {
+  writeFileSync(`mockups/shots/${name}-${id}.html`, `${head}<body class="shot">${body}</body></html>`);
+}
+
+console.log(`mockups/${name}.html y mockups/shots/ listos`);

@@ -4,16 +4,6 @@ description: "Cada integración de pagos instalada se expone al AI Agent como un
 icon: "credit-card"
 ---
 
-import { pagosMarketplaceHtml } from "/snippets/mockups/pagosMarketplace.jsx";
-
-| Campo | Valor |
-| --- | --- |
-| Producto | Pagos |
-| Estado | Por definir |
-| Responsable | TODO |
-| Repositorios | TODO |
-| Tarea en ClickUp | TODO |
-
 ## Contexto
 
 El Marketplace tiene muchas integraciones de pago: Stripe, Mercado Pago, De Una, Payphone, Wompi, PayPal, Kushki, Conekta, Datafast, Nuvei y Jelou Payments. En los flujos funcionan bien.
@@ -63,19 +53,42 @@ Los números coinciden con los marcadores del [mockup](#diseño).
 
 ## Diseño
 
-El mockup reproduce la UI actual de Jelou (Marketplace, builder y panel del AI Agent) con los cambios marcados. Tiene cinco pantallas:
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { pagosMarketplaceShotA, pagosMarketplaceShotB, pagosMarketplaceShotC, pagosMarketplaceShotD, pagosMarketplaceShotE } from "/snippets/mockups/pagosMarketplaceShots.jsx";
 
-| Pantalla | Qué muestra | Ítems |
-| --- | --- | --- |
-| A | Detalle de la integración Wompi con la sección **Tools para AI Agent (MCP)** y Pago WebView eliminada | 1, 4, 5 |
-| B | **Agregar tool** en el AI Agent: Wompi, Mercado Pago y Nuvei bajo **Integraciones MCP** | 6 |
-| C | Herramientas del agente con Wompi y Mercado Pago activos a la vez | 3, 5, 7 |
-| D | Parámetros de la tool: los 13 de Pago WebView frente a los 2 propuestos | 8 |
-| E | Modal del MCP Jelou Payments que se retira | — |
+Las maquetas reproducen la UI actual de Jelou (Marketplace, builder y panel del AI Agent). Solo cambia lo marcado; los números coinciden con los ítems de **Qué hace falta**.
 
-<iframe srcDoc={pagosMarketplaceHtml} title="Mockup: pagos en el Marketplace" style={{ width: "100%", height: "860px", border: "1px solid #e5e7eb", borderRadius: "12px", background: "#ECEEF2" }} />
+### A · Marketplace → detalle de la integración
 
-<Tip>Para verlo a tamaño real abre `mockups/pagos-marketplace.html` en el navegador. La fuente es `mockups/pagos-marketplace.tpl.html`; tras editarla, regenera con `node mockups/build.mjs pagos-marketplace`.</Tip>
+Wompi ya instalada. Se instala igual que hoy (**1**). Lo nuevo es la sección **Tools para AI Agent (MCP)** con sus 2 tools (**4**) y que **Pago WebView** desaparece de las tools nativas (**5**).
+
+<DiagramViewer light={pagosMarketplaceShotA} dark={pagosMarketplaceShotA} alt="Detalle de Wompi con la sección Tools para AI Agent (MCP) y Pago WebView eliminada" />
+
+### B · Builder → AI Agent → Agregar tool
+
+Hoy al buscar "mercado pago" no sale nada. Toda integración de pagos instalada aparece bajo **Integraciones MCP**, junto a Stripe (**6**).
+
+<DiagramViewer light={pagosMarketplaceShotB} dark={pagosMarketplaceShotB} alt="Popover Agregar tool con Stripe, Wompi, Mercado Pago y Nuvei bajo Integraciones MCP" />
+
+### C · AI Agent → Herramientas con dos proveedores
+
+El mismo agente usa Wompi y Mercado Pago a la vez (**3**). Cada MCP expone exactamente 2 tools (**7**). Pago WebView ya no existe en el agente (**5**).
+
+<DiagramViewer light={pagosMarketplaceShotC} dark={pagosMarketplaceShotC} alt="Pestaña Herramientas con los MCP de Wompi y Mercado Pago, cada uno con sus dos tools" />
+
+### D · Configuración de la tool: parámetros
+
+Los 13 parámetros de Pago WebView frente a los 2 propuestos (**8**). Los nombres son una propuesta.
+
+<DiagramViewer light={pagosMarketplaceShotD} dark={pagosMarketplaceShotD} alt="Los 13 parámetros de Pago WebView marcados como eliminados frente a los 2 de Generar enlace de pago" />
+
+### E · Se retira: MCP Jelou Payments
+
+El modal de instalación actual obliga a elegir un solo proveedor y pide inputs técnicos. Con el esquema nuevo sobra. <Badge color="orange">Por confirmar</Badge>
+
+<DiagramViewer light={pagosMarketplaceShotE} dark={pagosMarketplaceShotE} alt="Modal Credenciales API de Jelou Payments marcado como retirado, con las razones al lado" />
+
+<Tip>Fuente: `mockups/pagos-marketplace.tpl.html`. Tras editarla: `node mockups/build.mjs pagos-marketplace` y luego `node mockups/shots.mjs pagos-marketplace` para regenerar las imágenes.</Tip>
 
 ## Criterios de aceptación
 

@@ -59,9 +59,12 @@
   .frame { width: 1200px; background: #fff; border: 1px solid var(--n200); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px rgba(9,30,50,.08); display: grid; grid-template-columns: 56px minmax(0,1fr); grid-template-rows: 48px 1fr; position: relative; }
   .frame.short { width: 1200px; }
   .fit { overflow-x: auto; }
-  @media (max-width: 1280px) { .frame { zoom: .78; } }
-  @media (max-width: 960px) { .frame { zoom: .62; } }
-  @media (max-width: 700px) { .frame { zoom: .5; } }
+  @media (max-width: 1280px) { body:not(.shot) .frame { zoom: .78; } }
+  @media (max-width: 960px) { body:not(.shot) .frame { zoom: .62; } }
+  @media (max-width: 700px) { body:not(.shot) .frame { zoom: .5; } }
+  body.shot { padding: 16px; display: inline-block; }
+  body.shot .fit { overflow: visible; }
+  body.shot .vs { width: 940px; flex-wrap: nowrap; }
   .topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 0 14px 0 10px; border-bottom: 1px solid var(--n200); background: #fff; }
   .jlogo { width: 32px; height: 32px; border-radius: 8px; background: var(--p500); color: #fff; font-weight: 800; font-size: 18px; display: grid; place-items: center; }
   .crumb { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--n800); }
@@ -193,7 +196,9 @@
   .foot div .go { margin-left: auto; border: 1px solid var(--p500); color: #fff; font-size: 13px; padding: 6px 14px; border-radius: 999px; }
 
   /* popover Agregar tool */
-  .pop { position: absolute; width: 320px; background: #fff; border: 1px solid var(--n200); border-radius: 12px; box-shadow: 0 12px 32px rgba(9,30,50,.16); z-index: 3; overflow: hidden; }
+  .pop { position: absolute; width: 320px; background: #fff; border: 1px solid var(--n200); border-radius: 12px; box-shadow: 0 12px 32px rgba(9,30,50,.16); z-index: 3; }
+  .pop .h { border-radius: 12px 12px 0 0; }
+  .pop .f { border-radius: 0 0 12px 12px; overflow: hidden; }
   .pop .h { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid #E3E5EC; background: rgb(247 248 250 / .5); font-weight: 500; font-size: 14px; color: var(--n700); }
   .pop .h .ib { padding: 4px; border-radius: 6px; background: #fff; border: 1px solid var(--n200); box-shadow: 0 1px 2px rgba(0,0,0,.06); display: grid; place-items: center; }
   .pop .h .x { margin-left: auto; color: var(--n500); }
@@ -259,7 +264,7 @@
 <h2>A · Marketplace → detalle de la integración <span class="tag chg">Cambia</span></h2>
 <p class="lead">Wompi ya instalada. Se instala igual que hoy (mismas credenciales, mismo botón <b>Conectar</b>). Lo nuevo es lo que expone.</p>
 
-<div class="fit"><div class="frame">
+<!-- shot:a --><div class="fit"><div class="frame">
   <div class="topbar">
     <div class="jlogo">J</div>
     <div class="crumb"><span class="co">Jelou Marketplace <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span><span class="sep">›</span><span>Marketplace</span></div>
@@ -320,7 +325,7 @@
       </div>
     </div>
   </div>
-</div></div>
+</div></div><!-- /shot:a -->
 <ul class="legend">
   <li><span class="n">1</span><span>La instalación no cambia: <b>Conectar</b>, credenciales y <b>Pasar a producción</b> siguen igual.</span></li>
   <li><span class="n">4</span><span>Nueva sección <b>Tools para AI Agent</b> con la etiqueta <b>MCP</b> y las 2 tools que expone. Sin URL de MCP ni datos técnicos: eso queda por detrás.</span></li>
@@ -331,7 +336,7 @@
 <h2>B · Builder → AI Agent → Agregar tool <span class="tag chg">Cambia</span></h2>
 <p class="lead">Hoy al buscar "mercado pago" sale <i>No hay tools disponibles para agregar</i>. Solo Stripe aparece porque es la única integración de pagos con MCP.</p>
 
-<div class="fit"><div class="frame">
+<!-- shot:b --><div class="fit"><div class="frame">
   <div class="topbar">
     <div class="jlogo">J</div>
     <div class="crumb"><span class="co">Nueva conversación</span></div>
@@ -385,7 +390,7 @@
       <div class="foot"><div><span class="tile"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"/><path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"/><path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"/></svg></span>Marketplace de integraciones<span class="go">Explorar marketplace →</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></div></div>
     </div>
   </div>
-</div></div>
+</div></div><!-- /shot:b -->
 <ul class="legend">
   <li><span class="n">6</span><span>Toda integración de pagos <b>instalada</b> aparece en <b>Integraciones MCP</b>, junto a Stripe, con la misma búsqueda que hoy. Las no instaladas no salen.</span></li>
 </ul>
@@ -394,7 +399,7 @@
 <h2>C · AI Agent → Herramientas con dos proveedores <span class="tag chg">Cambia</span></h2>
 <p class="lead">El mismo agente usa Wompi y Mercado Pago a la vez. Cada MCP trae sus 2 tools y se apagan por separado, igual que las tools de Stripe hoy.</p>
 
-<div class="fit"><div class="frame short" style="grid-template-columns:1fr;grid-template-rows:auto;width:760px;margin:0">
+<!-- shot:c --><div class="fit"><div class="frame short" style="grid-template-columns:1fr;grid-template-rows:auto;width:760px;margin:0">
   <div class="panel" style="border-left:0;min-height:0">
     <div class="ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6V2H8"/><path d="M15 11v2"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M20 16a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M9 11v2"/></svg>AI Agent<span class="x"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></div>
     <div class="tabs"><div>General</div><div class="on"><span class="cnt">2</span>Herramientas</div><div>Contexto</div><div>Avanzado</div><div>Eventos <span class="nw">Nuevo</span></div></div>
@@ -427,7 +432,7 @@
       </div>
     </div>
   </div>
-</div></div>
+</div></div><!-- /shot:c -->
 <ul class="legend">
   <li><span class="n">3</span><span>Varios proveedores instalados en la misma company y activos en el mismo agente. Cada uno es su propio MCP; no hay que elegir "un proveedor".</span></li>
   <li><span class="n">7</span><span>Cada MCP de pagos expone exactamente 2 tools. Se muestran como las tools de un MCP hoy (Stripe), con su switch y su ⚙.</span></li>
@@ -438,7 +443,7 @@
 <h2>D · Configuración de la tool: parámetros <span class="tag chg">Cambia</span></h2>
 <p class="lead">Al abrir ⚙ de una tool del MCP se ve el mismo panel de hoy. La diferencia: solo pide lo que el AI conoce de la conversación.</p>
 
-<div class="vs">
+<!-- shot:d --><div class="vs">
   <div class="col">
     <div class="cap"><span class="tag del">Hoy</span> Pago WebView · 13 parámetros</div>
     <div class="dd old">
@@ -487,7 +492,7 @@
       </div>
     </div>
   </div>
-</div>
+</div><!-- /shot:d -->
 <ul class="legend">
   <li><span class="n">8</span><span>Las tools solo piden datos de negocio. Proveedor, entorno, credenciales, bot, canal, moneda e IVA se resuelven por detrás con la integración instalada y el contexto del agente.</span></li>
 </ul>
@@ -497,7 +502,7 @@
 <h2>E · Se retira: MCP "Jelou Payments" con selector de proveedor <span class="tag tbd">Por confirmar</span></h2>
 <p class="lead">El modal de instalación actual obliga a elegir un solo proveedor por company y pide inputs técnicos que cambian según el proveedor. El esquema nuevo lo vuelve innecesario.</p>
 
-<div class="vs">
+<!-- shot:e --><div class="vs">
   <div class="col">
     <div class="dd old" style="width:460px">
       <div class="dh"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><div><b style="font-size:17px">Credenciales API</b><small>Ingresa las credenciales API del proveedor para terminar de instalar la integración "Jelou Payments".</small></div><span class="x"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></div>
@@ -524,7 +529,7 @@
     </ul>
     <p style="margin:14px 0 0">Con el esquema nuevo, cada integración ya tiene sus credenciales desde que se instala (pantalla A), así que este modal sobra.</p>
   </div>
-</div>
+</div><!-- /shot:e -->
 
 </div>
 </body>
