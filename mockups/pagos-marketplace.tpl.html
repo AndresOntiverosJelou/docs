@@ -230,6 +230,50 @@
   .cfg .wrap .r .ic .sw.on::after { left: 18px; }
   .all { font-size: 10px; font-weight: 700; color: var(--n600); background: var(--n100); border: 1px solid var(--n200); border-radius: 4px; padding: 1px 6px; letter-spacing: .04em; }
 
+  /* ---------- Pagos → Integraciones ---------- */
+  .pnav { width: 240px; background: #fff; border-right: 1px solid var(--n200); padding: 20px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .pnav .pi { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--n700); position: relative; }
+  .pnav .pi svg { color: var(--n600); }
+  .pnav .pi.on { background: var(--n100); font-weight: 600; }
+  .pnav .pi.on::before { content: ""; position: absolute; left: -16px; width: 2px; height: 24px; border-radius: 2px; background: var(--p500); }
+  .pnav .pl { font-size: 12px; color: var(--n500); padding: 6px 12px 0; display: flex; align-items: center; gap: 4px; }
+  .pg { flex: 1; padding: 28px 32px; min-width: 0; background: #fff; }
+  .pg .pgh { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .pg h1 { font-size: 26px; font-weight: 700; margin: 0; color: var(--n900); }
+  .pg .pgh p { margin: 4px 0 0; color: var(--n500); font-size: 14px; }
+  .pg .sec { display: flex; align-items: flex-end; justify-content: space-between; margin: 28px 0 12px; }
+  .pg .sec b { display: block; font-size: 16px; font-weight: 600; color: var(--n900); }
+  .pg .sec small { color: var(--n500); font-size: 12px; }
+  .chips { display: flex; gap: 4px; }
+  .chips span { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--n600); }
+  .chips span i { font-style: normal; font-size: 10px; background: var(--n100); border-radius: 999px; padding: 1px 6px; color: var(--n500); }
+  .chips span.on { background: var(--p500); color: #fff; }
+  .chips span.on i { background: rgba(255,255,255,.25); color: #fff; }
+  .gw { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--n200); border-radius: 12px; background: #fff; margin-bottom: 10px; }
+  .gw .logo { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--n200); font-size: 18px; }
+  .gw .logo svg { width: 20px; height: 20px; }
+  .gw .gt { flex: 1; min-width: 0; }
+  .gw .gt b { display: block; font-size: 15px; font-weight: 600; color: var(--n900); }
+  .gw .gt span { display: block; font-size: 13px; color: var(--n500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill.ok { background: rgb(var(--jou-semantic-success-50)); color: #0B7A55; }
+  .pill.av { border: 1px solid var(--n200); color: var(--n600); }
+  .pill.av i { width: 10px; height: 10px; border: 1.5px solid var(--n400); border-radius: 50%; display: inline-block; }
+  .gw .btn { width: auto; height: 30px; padding: 0 12px; font-size: 13px; }
+  .overlay { position: absolute; inset: 0; background: rgba(9,30,50,.45); display: grid; place-items: center; z-index: 5; }
+  .modal { width: 560px; background: #fff; border-radius: 16px; box-shadow: 0 24px 60px rgba(9,30,50,.3); position: relative; }
+  .modal .mh { display: flex; align-items: center; gap: 12px; padding: 20px 24px 0; }
+  .modal .mh b { font-size: 18px; font-weight: 600; color: var(--n900); }
+  .modal .mh .x { margin-left: auto; color: var(--n600); }
+  .modal .md { padding: 8px 24px 0; color: var(--n600); font-size: 14px; }
+  .modal .mb { padding: 16px 24px 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .modal .f label { display: block; font-size: 13px; font-weight: 600; color: var(--n800); margin-bottom: 6px; }
+  .modal .f .inp { color: var(--n800); }
+  .modal .f .inp.ph { color: rgb(var(--jou-input-placeholder-text-color)); }
+  .modal .f small { display: block; font-size: 12px; color: var(--n500); margin-top: 4px; }
+  .modal .mf { display: flex; justify-content: flex-end; gap: 8px; padding: 20px 24px 24px; }
+  .modal .mf .btn { width: auto; height: 34px; padding: 0 16px; }
+
   /* ---------- Drill-down: parámetros ---------- */
   .dd { width: 420px; background: #fff; border: 1px solid var(--n200); border-radius: 12px; box-shadow: 0 8px 30px rgba(9,30,50,.08); }
   .dd .dh { display: flex; gap: 10px; padding: 14px 14px 10px; align-items: flex-start; }
@@ -575,6 +619,64 @@
     <p style="margin:14px 0 0">Con el esquema nuevo, cada integración ya tiene sus credenciales desde que se instala (pantalla A), así que este modal sobra.</p>
   </div>
 </div><!-- /shot:e -->
+
+
+<!-- =================================================================== -->
+<h2>F · Pagos → Integraciones → Configurar <span class="tag chg">Cambia</span></h2>
+<p class="lead">Los datos del comercio (moneda, IVA, país, expiración) se configuran una vez por pasarela. El MCP los lee de aquí; el AI no los pide.</p>
+
+<!-- shot:f --><div class="fit"><div class="frame">
+  <div class="topbar">
+    <div class="jlogo">J</div>
+    <div class="crumb"><span class="co">Jelou Marketplace {{chevron-down:14}}</span></div>
+    <div class="right">{{search:18}}<span class="bell">{{bell:18}}<i>1</i></span>{{circle-alert:18}}{{download:18}}<span>Impersonate User</span><span class="avatar">IU</span></div>
+  </div>
+  <div class="nav">
+    <div class="it">{{search}}</div><div class="it">{{house}}</div><div class="it">{{bot}}</div><div class="it">{{workflow}}</div><div class="it">{{briefcase}}</div><div class="it">{{layers}}</div><div class="it">{{bug}}</div><div class="it">{{database}}</div><div class="it">{{shopping-bag}}</div><div class="it">{{phone}}</div><div class="it on">{{credit-card}}</div><div class="it">{{id-card}}</div>
+    <hr><div class="it">{{sliders-horizontal}}</div><div class="it">{{send}}</div>
+    <hr><div class="it">{{inbox}}</div><div class="it">{{monitor}}</div><div class="it">{{contact}}</div>
+    <div class="sp"></div><div class="it">{{panel-left}}</div>
+  </div>
+  <div class="main" style="display:flex;position:relative;min-height:760px">
+    <div class="pnav">
+      <div class="pi">{{list-todo:18}}Resumen</div>
+      <div class="pi">{{badge-dollar-sign:18}}Actividades</div>
+      <div class="pi">{{users:18}}Clientes</div>
+      <div class="pi">{{bell:18}}Notificaciones</div>
+      <div class="pi on">{{plug:18}}Integraciones</div>
+      <div class="pl">Documentación {{square-arrow-out-up-right:12}}</div>
+      <div class="pl">Ver métricas de pagos {{square-arrow-out-up-right:12}}</div>
+    </div>
+    <div class="pg">
+      <div class="pgh"><div><h1>Integraciones</h1><p>Conecta y administra las pasarelas de pago disponibles para tu empresa.</p></div><span class="btn pri" style="width:auto;padding:0 16px;height:36px">{{plus:16}}Agregar pasarela</span></div>
+      <div class="sec"><div><b>Pasarelas del marketplace</b><small>Pasarelas listas para integrar con tu cuenta. Selecciona una para instalarla o configurarla.</small></div><div class="chips"><span class="on">Todas <i>8</i></span><span>Conectadas <i>5</i></span><span>Disponibles <i>3</i></span></div></div>
+      <div class="gw"><span class="logo stripe">{{logo-stripe:20}}</span><div class="gt"><b>Stripe</b><span>Integración de la pasarela de pago Stripe para crear intenciones de pago, consultar el estado de los pagos, procesar reembolsos…</span></div><span class="pill ok">{{circle-check:14}}Conectada</span><span class="btn out">{{sliders-horizontal:14}}Configurar</span></div>
+      <div class="gw"><span class="logo mp">{{logo-mercadopago:20}}</span><div class="gt"><b>Mercado Pago</b><span>Integración de la pasarela de pago Mercadopago para crear preferencias de pago, consultar el estado de los pagos…</span></div><span class="pill ok">{{circle-check:14}}Conectada</span><span class="btn out">{{sliders-horizontal:14}}Configurar</span></div>
+      <div class="gw" style="border-color:var(--p500);box-shadow:0 0 0 3px rgb(var(--jou-primary-color) / .15)"><span class="logo wompi">W</span><div class="gt"><b>Wompi</b><span>Wompi es una pasarela de pagos digital respaldada por el Grupo Bancolombia que permite a negocios y emprendedores en Colombia…</span></div><span class="pill ok">{{circle-check:14}}Conectada</span><span class="btn out">{{sliders-horizontal:14}}Configurar</span></div>
+      <div class="gw"><span class="logo" style="color:#F26122">P</span><div class="gt"><b>Payphone</b><span>Integra Payphone para habilitar pagos en tu marketplace con un flujo de cobro simple y una experiencia de compra ágil.</span></div><span class="pill av"><i></i>Disponible</span><span class="btn pri">{{square-arrow-out-up-right:14}}Instalar</span></div>
+      <div class="gw"><span class="logo" style="background:#17C3A4;color:#fff">K</span><div class="gt"><b>Kushki</b><span>Kushki permite aceptar pagos en México, Colombia, Perú, Chile y Ecuador desde la infraestructura que tu empresa ya usa…</span></div><span class="pill av"><i></i>Disponible</span><span class="btn pri">{{square-arrow-out-up-right:14}}Instalar</span></div>
+      <div class="gw"><span class="logo" style="background:#111;color:#fff">C</span><div class="gt"><b>Conekta</b><span>Crea cobros con Conekta desde tus flujos conversacionales. El usuario completa el pago en el checkout seguro de Conekta…</span></div><span class="pill ok">{{circle-check:14}}Conectada</span><span class="btn out">{{sliders-horizontal:14}}Configurar</span></div>
+    </div>
+
+    <div class="overlay">
+      <div class="modal">
+        <span class="n" style="right:-11px;top:-11px">9</span>
+        <div class="mh"><span class="logo wompi lg" style="width:40px;height:40px;border:1px solid var(--n200);border-radius:8px;font-size:20px">W</span><b>Configurar Wompi</b><span class="x">{{x:18}}</span></div>
+        <div class="md">Datos del comercio que usan todos los cobros con esta pasarela. El AI Agent y los flujos los toman de aquí.</div>
+        <div class="mb">
+          <div class="f"><label>Moneda de cobro</label><div class="inp">COP · Peso colombiano<span style="margin-left:auto">{{chevron-down:14}}</span></div></div>
+          <div class="f"><label>País de operación</label><div class="inp"><span class="flag co" style="margin-right:4px"></span>Colombia<span style="margin-left:auto">{{chevron-down:14}}</span></div></div>
+          <div class="f"><label>IVA (%)</label><div class="inp">19</div><small>Se aplica sobre la base imponible.</small></div>
+          <div class="f"><label>Expiración del link de pago</label><div class="inp">30 minutos<span style="margin-left:auto">{{chevron-down:14}}</span></div><small>Mínimo 30 min para Stripe y Mercado Pago.</small></div>
+        </div>
+        <div class="mf"><span class="btn sec">Cancelar</span><span class="btn pri">Guardar</span></div>
+      </div>
+    </div>
+  </div>
+</div></div><!-- /shot:f -->
+<ul class="legend">
+  <li><span class="n">9</span><span><b>Configurar</b> abre la configuración de la pasarela: moneda, país, IVA y expiración del link. Hoy ese botón solo lleva al detalle de la integración en el Marketplace.</span></li>
+</ul>
 
 </div>
 </body>

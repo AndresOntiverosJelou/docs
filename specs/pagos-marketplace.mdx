@@ -47,6 +47,10 @@ Reutilizar las integraciones de pago que ya existen. Al instalar una, la platafo
 
   El resto se resuelve por detrás o se configura una vez en **Pagos**. Ver [De dónde sale cada campo](#de-dónde-sale-cada-campo).
 
+### Configuración en Pagos
+
+- [ ] **9.** En **Pagos → Integraciones**, el botón **Configurar** de cada pasarela abre su configuración: moneda, país, IVA y expiración del link de pago. El MCP y los flujos toman esos valores de ahí. <Badge color="orange">Por evaluar</Badge>
+
 ## De dónde sale cada campo
 
 Hoy **Pago WebView** y el modal de **Jelou Payments** piden todo esto a quien arma el bot. Con el esquema nuevo cada campo tiene un solo origen.
@@ -74,7 +78,7 @@ Sale de la integración instalada y del contexto de la conversación. Nunca se m
 
 ### Se configura en Pagos → Integraciones
 
-Son datos del comercio, no de cada cobro. Se definen una vez por pasarela con el botón **Configurar** y el MCP los lee de ahí. <Badge color="orange">Por evaluar</Badge>
+Son datos del comercio, no de cada cobro. Se definen una vez por pasarela con el botón **Configurar** (**9**) y el MCP los lee de ahí. <Badge color="orange">Por evaluar</Badge>
 
 | Campo | Hoy | Propuesta |
 | --- | --- | --- |
@@ -88,7 +92,7 @@ Son datos del comercio, no de cada cobro. Se definen una vez por pasarela con el
 ## Diseño
 
 import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
-import { pagosMarketplaceShotA, pagosMarketplaceShotB, pagosMarketplaceShotC, pagosMarketplaceShotD, pagosMarketplaceShotE } from "/snippets/mockups/pagosMarketplaceShots.jsx";
+import { pagosMarketplaceShotA, pagosMarketplaceShotB, pagosMarketplaceShotC, pagosMarketplaceShotD, pagosMarketplaceShotE, pagosMarketplaceShotF } from "/snippets/mockups/pagosMarketplaceShots.jsx";
 
 Las maquetas reproducen la UI actual de Jelou (Marketplace, builder y panel del AI Agent). Solo cambia lo marcado; los números coinciden con los ítems de **Qué hace falta**.
 
@@ -121,6 +125,12 @@ Los 13 parámetros de Pago WebView frente a los 2 propuestos (**8**). Los nombre
 El modal de instalación actual obliga a elegir un solo proveedor y pide inputs técnicos. Se retira del Marketplace; su schema de tools pasa a inyectarse en cada proveedor (**2**).
 
 <DiagramViewer light={pagosMarketplaceShotE} dark={pagosMarketplaceShotE} alt="Modal Credenciales API de Jelou Payments marcado como retirado, con las razones al lado" />
+
+### F · Pagos → Integraciones → Configurar
+
+Los datos del comercio se configuran una vez por pasarela (**9**). Hoy **Configurar** solo abre el detalle de la integración; la propuesta es que abra este modal.
+
+<DiagramViewer light={pagosMarketplaceShotF} dark={pagosMarketplaceShotF} alt="Pantalla Integraciones de Pagos con el modal Configurar Wompi: moneda, país, IVA y expiración del link" />
 
 
 ## Criterios de aceptación

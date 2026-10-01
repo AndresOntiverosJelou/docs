@@ -230,6 +230,50 @@
   .cfg .wrap .r .ic .sw.on::after { left: 18px; }
   .all { font-size: 10px; font-weight: 700; color: var(--n600); background: var(--n100); border: 1px solid var(--n200); border-radius: 4px; padding: 1px 6px; letter-spacing: .04em; }
 
+  /* ---------- Pagos → Integraciones ---------- */
+  .pnav { width: 240px; background: #fff; border-right: 1px solid var(--n200); padding: 20px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .pnav .pi { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--n700); position: relative; }
+  .pnav .pi svg { color: var(--n600); }
+  .pnav .pi.on { background: var(--n100); font-weight: 600; }
+  .pnav .pi.on::before { content: ""; position: absolute; left: -16px; width: 2px; height: 24px; border-radius: 2px; background: var(--p500); }
+  .pnav .pl { font-size: 12px; color: var(--n500); padding: 6px 12px 0; display: flex; align-items: center; gap: 4px; }
+  .pg { flex: 1; padding: 28px 32px; min-width: 0; background: #fff; }
+  .pg .pgh { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .pg h1 { font-size: 26px; font-weight: 700; margin: 0; color: var(--n900); }
+  .pg .pgh p { margin: 4px 0 0; color: var(--n500); font-size: 14px; }
+  .pg .sec { display: flex; align-items: flex-end; justify-content: space-between; margin: 28px 0 12px; }
+  .pg .sec b { display: block; font-size: 16px; font-weight: 600; color: var(--n900); }
+  .pg .sec small { color: var(--n500); font-size: 12px; }
+  .chips { display: flex; gap: 4px; }
+  .chips span { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--n600); }
+  .chips span i { font-style: normal; font-size: 10px; background: var(--n100); border-radius: 999px; padding: 1px 6px; color: var(--n500); }
+  .chips span.on { background: var(--p500); color: #fff; }
+  .chips span.on i { background: rgba(255,255,255,.25); color: #fff; }
+  .gw { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--n200); border-radius: 12px; background: #fff; margin-bottom: 10px; }
+  .gw .logo { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--n200); font-size: 18px; }
+  .gw .logo svg { width: 20px; height: 20px; }
+  .gw .gt { flex: 1; min-width: 0; }
+  .gw .gt b { display: block; font-size: 15px; font-weight: 600; color: var(--n900); }
+  .gw .gt span { display: block; font-size: 13px; color: var(--n500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill.ok { background: rgb(var(--jou-semantic-success-50)); color: #0B7A55; }
+  .pill.av { border: 1px solid var(--n200); color: var(--n600); }
+  .pill.av i { width: 10px; height: 10px; border: 1.5px solid var(--n400); border-radius: 50%; display: inline-block; }
+  .gw .btn { width: auto; height: 30px; padding: 0 12px; font-size: 13px; }
+  .overlay { position: absolute; inset: 0; background: rgba(9,30,50,.45); display: grid; place-items: center; z-index: 5; }
+  .modal { width: 560px; background: #fff; border-radius: 16px; box-shadow: 0 24px 60px rgba(9,30,50,.3); position: relative; }
+  .modal .mh { display: flex; align-items: center; gap: 12px; padding: 20px 24px 0; }
+  .modal .mh b { font-size: 18px; font-weight: 600; color: var(--n900); }
+  .modal .mh .x { margin-left: auto; color: var(--n600); }
+  .modal .md { padding: 8px 24px 0; color: var(--n600); font-size: 14px; }
+  .modal .mb { padding: 16px 24px 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .modal .f label { display: block; font-size: 13px; font-weight: 600; color: var(--n800); margin-bottom: 6px; }
+  .modal .f .inp { color: var(--n800); }
+  .modal .f .inp.ph { color: rgb(var(--jou-input-placeholder-text-color)); }
+  .modal .f small { display: block; font-size: 12px; color: var(--n500); margin-top: 4px; }
+  .modal .mf { display: flex; justify-content: flex-end; gap: 8px; padding: 20px 24px 24px; }
+  .modal .mf .btn { width: auto; height: 34px; padding: 0 16px; }
+
   /* ---------- Drill-down: parámetros ---------- */
   .dd { width: 420px; background: #fff; border: 1px solid var(--n200); border-radius: 12px; box-shadow: 0 8px 30px rgba(9,30,50,.08); }
   .dd .dh { display: flex; gap: 10px; padding: 14px 14px 10px; align-items: flex-start; }
