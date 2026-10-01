@@ -23,6 +23,12 @@
   3. In the page, import `DiagramViewer` from `/snippets/diagram-viewer.jsx` and both URIs from `/snippets/diagramas/<name>.jsx`, then render `<DiagramViewer light={<name>Light} dark={<name>Dark} alt="…" />`. It adds zoom, pan and fullscreen. See `productos/pagos.mdx`.
 - In snippets, Mintlify only adds its `mint-` Tailwind prefix to literal `className` strings in the JSX the exported component returns. Classes built in variables or nested components stay unprefixed and unstyled, so write classes inline and put state-dependent styling in `style`.
 
+## Mockups
+
+- La fuente de cada mockup de UI es `mockups/<name>.tpl.html`; los íconos se escriben como `{{store}}` o `{{search:16}}` y salen de `mockups/lucide.json` (Lucide, la librería de íconos de jelou-apps). Reproduce la UI real: fuente Manrope, tokens Cortex y la estructura de los componentes de `jelou-apps`.
+- Cada pantalla va entre `<!-- shot:x -->` y `<!-- /shot:x -->`. `node mockups/build.mjs <name>` arma el HTML y separa las pantallas; `node mockups/shots.mjs <name>` las captura como PNG con Chrome headless y escribe `snippets/mockups/<nameCamel>Shots.jsx` con data URIs. En la página se muestran con `DiagramViewer`. `/mockups/` está en `.mintignore`.
+- No pongas en las specs instrucciones de mantenimiento ni enlaces a los archivos fuente: las lee el equipo de producto y desarrollo.
+
 ## Terminology
 
 {/* Add product-specific terms and preferred usage */}
