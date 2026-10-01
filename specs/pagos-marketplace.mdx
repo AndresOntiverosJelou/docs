@@ -45,7 +45,45 @@ Reutilizar las integraciones de pago que ya existen. Al instalar una, la platafo
   - **Generar enlace de pago**: `amount` y `concept`.
   - **Obtener estado del pedido**: `orderId`.
 
-  El resto (proveedor, entorno, credenciales, bot y canal, moneda, IVA, app de la company) se resuelve por detrás a partir de la integración instalada y del contexto. <Badge color="orange">Por definir</Badge>
+  El resto se resuelve por detrás o se configura una vez en **Pagos**. Ver [De dónde sale cada campo](#de-dónde-sale-cada-campo).
+
+## De dónde sale cada campo
+
+Hoy **Pago WebView** y el modal de **Jelou Payments** piden todo esto a quien arma el bot. Con el esquema nuevo cada campo tiene un solo origen.
+
+### Lo pide el AI en la conversación
+
+| Campo | Tool | Qué es |
+| --- | --- | --- |
+| `amount` | Generar enlace de pago | Monto total a cobrar |
+| `concept` | Generar enlace de pago | Qué está pagando el usuario |
+| `orderId` | Obtener estado del pedido | Id de la orden que devolvió el cobro |
+
+### Lo resuelve el backend
+
+Sale de la integración instalada y del contexto de la conversación. Nunca se muestra en la tool ni se pide al instalar el MCP.
+
+| Campo | De dónde sale |
+| --- | --- |
+| `provider` | La integración instalada. Cada MCP pertenece a un solo proveedor. |
+| Credenciales de la pasarela (API keys, llaves pública y privada, access token) | Las que se ingresaron al instalar la integración. |
+| Token del core de pagos | La company. |
+| ID de la app de la company en el core de pagos | La company. |
+| `environment` | El estado de la integración: **Desarrollo** o **Producción** (botón **Pasar a producción**). |
+| `botId`, `botNumber`, `botType` | El bot y el canal donde corre el agente. |
+
+### Se configura en Pagos → Integraciones
+
+Son datos del comercio, no de cada cobro. Se definen una vez por pasarela con el botón **Configurar** y el MCP los lee de ahí. <Badge color="orange">Por evaluar</Badge>
+
+| Campo | Hoy | Propuesta |
+| --- | --- | --- |
+| Moneda | Se pide en cada tool (`currency`) | Configuración de la pasarela |
+| IVA (%) | Se pide en cada tool (`iva`) | Configuración de la pasarela |
+| País | Se pide al instalar Jelou Payments | Configuración de la pasarela |
+| Expiración del link de pago | Se pide en cada tool (`expiration_time`) | Configuración de la pasarela, con un valor por defecto |
+
+<Note>Hoy **Configurar** abre el detalle de la integración en el Marketplace; no existe una pantalla de configuración por pasarela. Estos campos habría que agregarlos ahí, o pedirlos en el modal de conexión como ya hace Conekta con el IVA.</Note>
 
 ## Diseño
 
