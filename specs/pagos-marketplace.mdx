@@ -16,11 +16,12 @@ Reutilizar las integraciones de pago que ya existen. Al instalar una, la platafo
 
 ## Qué hace falta
 
-Los números coinciden con los marcadores del [mockup](#diseño).
-
 ### Instalación
 
 - [ ] **1.** La instalación de una integración de pagos no cambia: mismo flujo y mismas credenciales de hoy, sin pasos ni inputs nuevos.
+  Se mantiene el modal **Conectar** actual con sus dos opciones:
+  - **Probar con Jelou**: prueba la integración sin crear una cuenta ni ingresar credenciales.
+  - **Conectar mi cuenta**: usa las credenciales propias, en ambiente de prueba o producción.
 - [ ] **2.** Al instalarla, se crea automáticamente un MCP para esa integración. Hay un MCP por integración instalada.
 - [ ] **3.** Una company puede tener varias integraciones de pago instaladas a la vez, y un mismo agente puede usar varias.
 
