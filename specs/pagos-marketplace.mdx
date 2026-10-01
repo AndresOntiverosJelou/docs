@@ -10,13 +10,6 @@ El Marketplace tiene muchas integraciones de pago: Stripe, Mercado Pago, De Una,
 
 El problema está en el AI Agent. Solo acepta integraciones MCP, y la única de pagos que lo es hoy es Stripe. Si buscas "mercado pago" en **Agregar tool**, no aparece nada.
 
-Hubo dos intentos de resolverlo y ninguno sirve:
-
-1. **Tool Pago WebView.** Es una tool nativa que funciona con cualquier proveedor. Pide 13 parámetros (`provider`, `botId`, `botNumber`, `botType`, `environment`, `currency`, `iva`, `expiration_time`, etc.) que nadie sabe cómo llenar.
-2. **MCP Jelou Payments.** Expone tools útiles, pero al instalarlo:
-   - Solo permite elegir un proveedor. Una company no puede tener varios.
-   - Pide inputs técnicos (entorno, token del core, moneda, país, IVA, ID de la app) y además campos que cambian según el proveedor (por ejemplo, las llaves de Wompi). Es inviable de llenar.
-
 ## Objetivo
 
 Reutilizar las integraciones de pago que ya existen. Al instalar una, la plataforma crea por detrás un MCP para esa integración y el AI Agent lo ve igual que a Stripe. Ese MCP expone solo 2 tools: **Generar enlace de pago** y **Obtener estado del pedido**. Las credenciales, los datos técnicos y la información sensible se resuelven por detrás, nunca en la tool.
