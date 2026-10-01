@@ -211,6 +211,25 @@
   .pop .f { border-top: 1px solid #E3E5EC; padding: 8px; background: rgb(247 248 250 / .5); display: flex; gap: 6px; overflow: hidden; }
   .pop .f .btn { height: 32px; font-size: 12px; padding: 0 10px; width: auto; white-space: nowrap; }
 
+  /* ---------- Panel de integración (patrón Shopify) ---------- */
+  .cfg { position: absolute; width: 440px; background: #fff; border: 1px solid var(--n200); border-radius: 12px; box-shadow: 0 12px 32px rgba(9,30,50,.16); z-index: 3; }
+  .cfg .ch { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--n200); font-weight: 600; font-size: 15px; color: var(--n800); border-radius: 12px 12px 0 0; }
+  .cfg .ch .x { margin-left: auto; background: var(--n100); border-radius: 6px; padding: 3px; color: var(--n600); display: grid; place-items: center; }
+  .cfg .cb { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .cfg .full { border: 1px solid var(--n200); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cfg .full b { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--n800); }
+  .cfg .full b svg { color: var(--p500); }
+  .cfg .full small { display: block; font-size: 12px; color: var(--n500); margin-top: 2px; }
+  .cfg .div { display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--n500); margin: 4px 0; }
+  .cfg .div::before, .cfg .div::after { content: ""; flex: 1; height: 1px; background: var(--n200); }
+  .cfg .grp { font-size: 12px; color: var(--n500); margin: 4px 0 -4px 2px; }
+  .cfg .wrap .r { padding: 9px 12px; }
+  .cfg .wrap .r .ic { gap: 10px; align-items: center; color: var(--n500); }
+  .cfg .wrap .r .ic .sw { width: 36px; height: 20px; }
+  .cfg .wrap .r .ic .sw::after { width: 16px; height: 16px; }
+  .cfg .wrap .r .ic .sw.on::after { left: 18px; }
+  .all { font-size: 10px; font-weight: 700; color: var(--n600); background: var(--n100); border: 1px solid var(--n200); border-radius: 4px; padding: 1px 6px; letter-spacing: .04em; }
+
   /* ---------- Drill-down: parámetros ---------- */
   .dd { width: 420px; background: #fff; border: 1px solid var(--n200); border-radius: 12px; box-shadow: 0 8px 30px rgba(9,30,50,.08); }
   .dd .dh { display: flex; gap: 10px; padding: 14px 14px 10px; align-items: flex-start; }

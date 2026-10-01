@@ -37,6 +37,8 @@ Reutilizar las integraciones de pago que ya existen. Al instalar una, la platafo
   - **Generar enlace de pago**: crea la orden en el core de pagos de Jelou y devuelve el link (o código) de pago.
   - **Obtener estado del pedido**: indica si la orden se pagó, sigue pendiente, falló o fue cancelada.
 
+  Se muestran con el mismo patrón que Shopify y Jelou Shop hoy: el proveedor es una fila con el badge **ALL**, ⚙ y 🗑. Al abrir ⚙ se ve el switch **Integración completa** y, bajo **Herramientas específicas**, sus 2 tools con su propio switch.
+
 ### Inputs
 
 - [ ] **8.** Las tools solo le piden al AI los datos que salen de la conversación. Propuesta:
@@ -66,9 +68,9 @@ Hoy al buscar "mercado pago" no sale nada. Toda integración de pagos instalada 
 
 ### C · AI Agent → Herramientas con dos proveedores
 
-El mismo agente usa Wompi y Mercado Pago a la vez (**3**). Cada MCP expone exactamente 2 tools (**7**). Pago WebView ya no existe en el agente (**5**).
+Mismo patrón que Shopify hoy. Wompi y Mercado Pago aparecen como filas con **ALL**, ⚙ y 🗑 en el mismo agente (**3**). Al abrir ⚙ de Wompi se ve **Integración completa** y sus 2 herramientas específicas (**7**). Pago WebView ya no existe en el agente (**5**).
 
-<DiagramViewer light={pagosMarketplaceShotC} dark={pagosMarketplaceShotC} alt="Pestaña Herramientas con los MCP de Wompi y Mercado Pago, cada uno con sus dos tools" />
+<DiagramViewer light={pagosMarketplaceShotC} dark={pagosMarketplaceShotC} alt="Pestaña Herramientas con Wompi y Mercado Pago como filas, y el panel de Wompi con Integración completa y sus dos tools" />
 
 ### D · Configuración de la tool: parámetros
 
