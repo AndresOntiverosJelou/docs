@@ -146,14 +146,22 @@ Los datos del comercio se configuran una vez por pasarela (**9**). Hoy **Configu
 
 ## Criterios de aceptación
 
+### Instalación y builder
+
 - [ ] Dado que una company instala Wompi, cuando abre **Agregar tool** en un AI Agent, entonces Wompi aparece bajo **Integraciones MCP** sin configurar nada más.
 - [ ] Dado que una company tiene Wompi y Mercado Pago instalados, cuando los agrega a un mismo agente, entonces cada uno aparece con sus 2 tools y cobra con su propio proveedor.
+- [ ] Dado un AI Agent nuevo, cuando se abre **Agregar tool**, entonces **Pago WebView** y **Pago Confirmación Externa** no aparecen.
+
+### Cobro en la conversación
+
 - [ ] Dado un agente con el MCP de un proveedor, cuando el usuario confirma qué paga y cuánto, entonces el AI genera el link llenando solo los inputs de negocio.
 - [ ] Dado un link generado, cuando el AI consulta el estado con el `orderId`, entonces recibe el estado correcto del pedido.
 - [ ] Dado un link generado, cuando el usuario paga, entonces el agente retoma la conversación con el resultado sin que el usuario escriba.
+
+### Errores
+
 - [ ] Dado un MCP en producción con credenciales rechazadas por el PSP, cuando el AI genera un link, entonces la tool devuelve un error legible y el AI no inventa un link.
 - [ ] Dado un `amount` por debajo del mínimo del PSP, cuando el AI genera un link, entonces la tool lo rechaza e indica el mínimo.
-- [ ] Las tools **Pago WebView** y **Pago Confirmación Externa** ya no aparecen en el Marketplace ni en **Agregar tool**.
 
 ## Decisiones
 
