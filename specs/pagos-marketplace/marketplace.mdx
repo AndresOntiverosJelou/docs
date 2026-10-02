@@ -1,0 +1,49 @@
+---
+title: "Marketplace: instalación y MCP automático"
+sidebarTitle: "Marketplace"
+description: "Ítems 1 a 5. La instalación no cambia, se crea el MCP al instalar y se retiran Jelou Payments, Pago WebView y Pago Confirmación Externa."
+icon: "store"
+---
+
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { pagosMarketplaceShotA, pagosMarketplaceShotE } from "/snippets/mockups/pagosMarketplaceShots.jsx";
+
+Parte de [Reestructuración de pagos en el Marketplace](/specs/pagos-marketplace/resumen). Cubre lo que cambia en el Marketplace y en la instalación de una integración de pagos.
+
+## Qué hace falta
+
+### Instalación
+
+- [ ] **1.** La instalación de una integración de pagos no cambia: mismo flujo y mismas credenciales de hoy, sin pasos ni inputs nuevos.
+  Se mantiene el modal **Conectar** actual con sus dos opciones:
+  - **Probar con Jelou**: prueba la integración sin crear una cuenta ni ingresar credenciales.
+  - **Conectar mi cuenta**: usa las credenciales propias, en ambiente de prueba o producción.
+- [ ] **2.** Al instalarla, se crea automáticamente un MCP para esa integración. Hay un MCP por integración instalada, incluida Stripe. Reutiliza la conexión al core de pagos del MCP **Jelou Payments** actual, con el proveedor fijado por la integración instalada. Las tools tienen un schema nuevo con solo los inputs del ítem [**8**](/specs/pagos-marketplace/ai-agent#inputs).
+- [ ] **3.** Una company puede tener varias integraciones de pago instaladas a la vez, y un mismo agente puede usar varias.
+
+### Vista en el Marketplace
+
+- [ ] **4.** El detalle de la integración muestra la sección **Tools para AI Agent (MCP)** con sus 2 tools.
+- [ ] **5.** Se eliminan las tools nativas **Pago WebView** y **Pago Confirmación Externa**: del detalle de cada integración y de **Agregar tool**. Los agentes que ya las usan siguen funcionando durante la ventana de deprecación. Ver [Migración](/specs/pagos-marketplace/migracion).
+
+## Diseño
+
+Las maquetas reproducen la UI actual del Marketplace. Solo cambia lo marcado; los números coinciden con los ítems de **Qué hace falta**.
+
+### A · Marketplace → detalle de la integración
+
+Wompi ya instalada. Se instala igual que hoy (**1**). Lo nuevo es la sección **Tools para AI Agent (MCP)** con sus 2 tools (**4**) y que **Pago WebView** y **Pago Confirmación Externa** desaparecen de las tools nativas (**5**).
+
+<DiagramViewer light={pagosMarketplaceShotA} dark={pagosMarketplaceShotA} alt="Detalle de Wompi con la sección Tools para AI Agent (MCP) y las tools nativas Pago WebView y Pago Confirmación Externa eliminadas" />
+
+### E · Se retira: MCP Jelou Payments
+
+El modal de instalación actual obliga a elegir un solo proveedor y pide inputs técnicos. Se retira del Marketplace; su conexión al core se reutiliza en cada proveedor (**2**).
+
+<DiagramViewer light={pagosMarketplaceShotE} dark={pagosMarketplaceShotE} alt="Modal Credenciales API de Jelou Payments marcado como retirado, con las razones al lado" />
+
+## Criterios de aceptación
+
+- [ ] Dado que una company instala Wompi, cuando abre **Agregar tool** en un AI Agent, entonces Wompi aparece bajo **Integraciones MCP** sin configurar nada más.
+- [ ] Dado que una company instala Stripe, cuando abre el detalle de la integración, entonces ve la sección **Tools para AI Agent (MCP)** con sus 2 tools, igual que cualquier otra pasarela.
+- [ ] Dado el Marketplace, cuando se busca Jelou Payments, entonces el MCP ya no se ofrece para instalar.

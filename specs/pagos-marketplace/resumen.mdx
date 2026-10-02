@@ -1,0 +1,56 @@
+---
+title: "Reestructuración de pagos en el Marketplace"
+sidebarTitle: "Resumen"
+description: "Cada integración de pagos instalada se expone al AI Agent como un MCP con 2 tools."
+icon: "credit-card"
+---
+
+## Contexto
+
+El Marketplace tiene muchas integraciones de pago: Stripe, Mercado Pago, De Una, Payphone, Wompi, PayPal, Kushki, Conekta, Datafast, Nuvei y Jelou Payments. En los flujos funcionan bien.
+
+El problema está en el AI Agent. Solo acepta integraciones MCP, y la única de pagos que lo es hoy es Stripe. Si buscas "mercado pago" en **Agregar tool**, no aparece nada.
+
+## Objetivo
+
+Reutilizar las integraciones de pago que ya existen. Al instalar una, la plataforma crea por detrás un MCP para esa integración y el AI Agent lo ve igual que a Stripe. Ese MCP expone solo 2 tools: **Generar enlace de pago** y **Obtener estado del pedido**. Las credenciales, los datos técnicos y la información sensible se resuelven por detrás, nunca en la tool.
+
+## Qué hace falta
+
+El trabajo se divide en cuatro partes. Los ítems van numerados del **1** al **10** de corrido, así las pantallas y los criterios se citan por número desde cualquier página.
+
+<CardGroup cols={2}>
+  <Card title="Marketplace" icon="store" href="/specs/pagos-marketplace/marketplace">
+    Ítems 1 a 5. La instalación no cambia, se crea el MCP automáticamente y se retiran Jelou Payments, Pago WebView y Pago Confirmación Externa.
+  </Card>
+  <Card title="AI Agent" icon="robot" href="/specs/pagos-marketplace/ai-agent">
+    Ítems 6 a 8. Las integraciones aparecen en **Agregar tool**, cada MCP expone 2 tools y solo pide `amount`, `concept` y `orderId`.
+  </Card>
+  <Card title="Pagos" icon="credit-card" href="/specs/pagos-marketplace/pagos">
+    Ítems 9 y 10. Configuración por pasarela con defaults, origen de cada campo y cómo el agente retoma la conversación tras el pago.
+  </Card>
+  <Card title="Migración" icon="arrow-right-arrow-left" href="/specs/pagos-marketplace/migracion">
+    Ventana de deprecación de Pago WebView y Pago Confirmación Externa.
+  </Card>
+</CardGroup>
+
+## Decisiones
+
+- El MCP **Jelou Payments** se retira del Marketplace. Se reutiliza su conexión al core de pagos; el schema de las tools es nuevo.
+- **Stripe** también genera el MCP de 2 tools al instalarse. Su MCP actual se mantiene para quien ya lo tiene, pero deja de ofrecerse en el Marketplace.
+- **Pago WebView** y **Pago Confirmación Externa** se eliminan. El MCP del proveedor las cubre: para Deuna, **Generar enlace de pago** devuelve su código y la confirmación llega por **Obtener estado del pedido** y por el webhook ([**10**](/specs/pagos-marketplace/pagos#después-del-pago)).
+- **Entorno.** El MCP usa el entorno en que está la integración, sin pedir `environment`.
+- **Moneda, IVA, país y expiración** se configuran una vez por pasarela en **Pagos → Integraciones**, con defaults por país.
+- **Probar con Jelou** usa las credenciales sandbox de Jelou para esa pasarela, siempre en Desarrollo.
+- El agente retoma la conversación tras el pago con `resume-or-create`, disparado por el webhook del core.
+
+## Preguntas abiertas
+
+- **Fecha de corte.** Se fija cuando esté el inventario de bots que usan Pago WebView y Pago Confirmación Externa.
+
+## Fuera de alcance
+
+- La tool **Generar flujo de pago** (WhatsApp Flow) del MCP Jelou Payments.
+- El diseño técnico de cómo se resuelven credenciales y datos sensibles por detrás. Se define más adelante.
+- Qué pasa con los agentes cuando se desinstala una integración de pagos que usan como MCP.
+

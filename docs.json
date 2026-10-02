@@ -49,7 +49,17 @@
               "specs/plantilla",
               "specs/ejemplo",
               "specs/demos-kyc",
-              "specs/pagos-marketplace"
+              {
+                "group": "Reestructuración de pagos en el Marketplace",
+                "icon": "credit-card",
+                "pages": [
+                  "specs/pagos-marketplace/resumen",
+                  "specs/pagos-marketplace/marketplace",
+                  "specs/pagos-marketplace/ai-agent",
+                  "specs/pagos-marketplace/pagos",
+                  "specs/pagos-marketplace/migracion"
+                ]
+              }
             ]
           }
         ]

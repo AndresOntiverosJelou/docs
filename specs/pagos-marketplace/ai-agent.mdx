@@ -1,0 +1,58 @@
+---
+title: "AI Agent: las integraciones de pago como MCP"
+sidebarTitle: "AI Agent"
+description: "Ítems 6 a 8. Las integraciones aparecen en Agregar tool, cada MCP expone 2 tools y solo pide amount, concept y orderId."
+icon: "robot"
+---
+
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { pagosMarketplaceShotB, pagosMarketplaceShotC, pagosMarketplaceShotD } from "/snippets/mockups/pagosMarketplaceShots.jsx";
+
+Parte de [Reestructuración de pagos en el Marketplace](/specs/pagos-marketplace/resumen). Cubre lo que ve quien arma el agente en el builder y lo que el AI puede pedir en la conversación.
+
+## Qué hace falta
+
+### Vista en el agente
+
+- [ ] **6.** En **Agregar tool**, las integraciones de pago instaladas aparecen bajo **Integraciones MCP**, como Stripe.
+- [ ] **7.** Cada MCP de pagos expone exactamente 2 tools:
+  - **Generar enlace de pago**: crea el pedido en el core de pagos de Jelou y devuelve el link (o código) de pago.
+  - **Obtener estado del pedido**: indica si el pedido se pagó, sigue pendiente, falló o fue cancelado.
+
+  Se muestran con el mismo patrón que Shopify y Jelou Shop hoy: el proveedor es una fila con el badge **ALL**, ⚙ y 🗑. Al abrir ⚙ se ve el switch **Integración completa** y, bajo **Herramientas específicas**, sus 2 tools con su propio switch.
+
+### Inputs
+
+- [ ] **8.** Las tools solo le piden al AI los datos que salen de la conversación. Propuesta:
+  - **Generar enlace de pago**: `amount` y `concept`.
+  - **Obtener estado del pedido**: `orderId`.
+
+  El resto se resuelve por detrás o se configura una vez en **Pagos**. Ver [De dónde sale cada campo](/specs/pagos-marketplace/pagos#de-dónde-sale-cada-campo).
+
+## Diseño
+
+Las maquetas reproducen la UI actual del builder y del panel del AI Agent. Solo cambia lo marcado; los números coinciden con los ítems de **Qué hace falta**.
+
+### B · Builder → AI Agent → Agregar tool
+
+Hoy al buscar "mercado pago" no sale nada. Toda integración de pagos instalada aparece bajo **Integraciones MCP**, junto a Stripe (**6**).
+
+<DiagramViewer light={pagosMarketplaceShotB} dark={pagosMarketplaceShotB} alt="Popover Agregar tool con Stripe, Wompi, Mercado Pago y Nuvei bajo Integraciones MCP" />
+
+### C · AI Agent → Herramientas con dos proveedores
+
+Mismo patrón que Shopify hoy. Wompi y Mercado Pago aparecen como filas con **ALL**, ⚙ y 🗑 en el mismo agente ([**3**](/specs/pagos-marketplace/marketplace#instalación)). Al abrir ⚙ de Wompi se ve **Integración completa** y sus 2 herramientas específicas (**7**). Pago WebView ya no existe en el agente ([**5**](/specs/pagos-marketplace/marketplace#vista-en-el-marketplace)).
+
+<DiagramViewer light={pagosMarketplaceShotC} dark={pagosMarketplaceShotC} alt="Pestaña Herramientas con Wompi y Mercado Pago como filas, y el panel de Wompi con Integración completa y sus dos tools" />
+
+### D · Configuración de la tool: parámetros
+
+Los 13 parámetros de Pago WebView frente a los 2 propuestos (**8**). Los nombres son una propuesta.
+
+<DiagramViewer light={pagosMarketplaceShotD} dark={pagosMarketplaceShotD} alt="Los 13 parámetros de Pago WebView marcados como eliminados frente a los 2 de Generar enlace de pago" />
+
+## Criterios de aceptación
+
+- [ ] Dado que una company tiene Wompi y Mercado Pago instalados, cuando los agrega a un mismo agente, entonces cada uno aparece con sus 2 tools y cobra con su propio proveedor.
+- [ ] Dado un agente con el MCP de un proveedor, cuando el usuario confirma qué paga y cuánto, entonces el AI genera el link llenando solo los inputs de negocio.
+- [ ] Dado un link generado, cuando el AI consulta el estado con el `orderId`, entonces recibe el estado correcto del pedido.

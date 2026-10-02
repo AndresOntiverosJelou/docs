@@ -1,0 +1,80 @@
+---
+title: "Pagos: configuración por pasarela y retorno al agente"
+sidebarTitle: "Pagos"
+description: "Ítems 9 y 10. Configuración por pasarela con defaults, origen de cada campo y cómo el agente retoma la conversación tras el pago."
+icon: "credit-card"
+---
+
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { pagosMarketplaceShotF } from "/snippets/mockups/pagosMarketplaceShots.jsx";
+
+Parte de [Reestructuración de pagos en el Marketplace](/specs/pagos-marketplace/resumen). Cubre lo que cambia en el producto **Pagos** y en el core de pagos.
+
+## Qué hace falta
+
+### Configuración en Pagos
+
+- [ ] **9.** En **Pagos → Integraciones**, el botón **Configurar** de cada pasarela abre su configuración: moneda, país, IVA y expiración del link de pago. El MCP y los flujos toman esos valores de ahí. Si el comercio nunca abre **Configurar**, el MCP usa la moneda y el IVA del país de la pasarela y 30 minutos de expiración, así que cobra desde el primer día sin configurar nada.
+
+### Después del pago
+
+- [ ] **10.** **Generar enlace de pago** guarda el `executionId` del agente en el pedido. Cuando el core de pagos recibe el webhook del PSP, llama a `resume-or-create` del AI Agent: retoma la ejecución si sigue viva o crea una nueva con el resultado del pago. El agente retoma la conversación sin que el usuario tenga que escribir.
+
+## De dónde sale cada campo
+
+Hoy **Pago WebView** y el modal de **Jelou Payments** piden todo esto a quien arma el bot. Con el esquema nuevo cada campo tiene un solo origen.
+
+### Lo pide el AI en la conversación
+
+| Campo | Tool | Qué es |
+| --- | --- | --- |
+| `amount` | Generar enlace de pago | Monto total a cobrar |
+| `concept` | Generar enlace de pago | Qué está pagando el usuario |
+| `orderId` | Obtener estado del pedido | Id del pedido que devolvió el cobro |
+
+### Lo resuelve el backend
+
+Sale de la integración instalada y del contexto de la conversación. Nunca se muestra en la tool ni se pide al instalar el MCP.
+
+| Campo | De dónde sale |
+| --- | --- |
+| `provider` | La integración instalada. Cada MCP pertenece a un solo proveedor. |
+| Credenciales de la pasarela (API keys, llaves pública y privada, access token) | Con **Conectar mi cuenta**, las que se ingresaron al instalar la integración. Con **Probar con Jelou**, las credenciales sandbox de Jelou para esa pasarela. |
+| Token del core de pagos | La company. |
+| ID de la app de la company en el core de pagos | La company. |
+| `environment` | El estado de la integración: **Desarrollo** o **Producción** (botón **Pasar a producción**). **Probar con Jelou** siempre es Desarrollo. |
+| `botId`, `botNumber`, `botType` | El bot y el canal donde corre el agente. |
+| `executionId` | La ejecución del agente que generó el link. Lo usa el core para retomar la conversación (**10**). |
+
+### Se configura en Pagos → Integraciones
+
+Son datos del comercio, no de cada cobro. Se definen una vez por pasarela con el botón **Configurar** (**9**) y el MCP los lee de ahí.
+
+| Campo | Hoy | Propuesta | Default |
+| --- | --- | --- | --- |
+| Moneda | Se pide en cada tool (`currency`) | Configuración de la pasarela | La del país de la pasarela |
+| IVA (%) | Se pide en cada tool (`iva`) | Configuración de la pasarela | El del país de la pasarela |
+| País | Se pide al instalar Jelou Payments | Configuración de la pasarela | El de la pasarela |
+| Expiración del link de pago | Se pide en cada tool (`expiration_time`) | Configuración de la pasarela | 30 minutos |
+
+## Diseño
+
+El ítem **10** no tiene pantalla: ocurre por detrás.
+
+### F · Pagos → Integraciones → Configurar
+
+Los datos del comercio se configuran una vez por pasarela (**9**). Hoy **Configurar** solo abre el detalle de la integración; la propuesta es que abra este modal.
+
+<DiagramViewer light={pagosMarketplaceShotF} dark={pagosMarketplaceShotF} alt="Pantalla Integraciones de Pagos con el modal Configurar Wompi: moneda, país, IVA y expiración del link" />
+
+## Criterios de aceptación
+
+### Configuración y retorno
+
+- [ ] Dada una pasarela recién instalada sin abrir **Configurar**, cuando el AI genera un link, entonces usa la moneda y el IVA del país de la pasarela y expira en 30 minutos.
+- [ ] Dado un link generado, cuando el usuario paga, entonces el agente retoma la conversación con el resultado sin que el usuario escriba.
+
+### Errores
+
+- [ ] Dado un MCP en producción con credenciales rechazadas por el PSP, cuando el AI genera un link, entonces la tool devuelve un error legible y el AI no inventa un link.
+- [ ] Dado un `amount` por debajo del mínimo del PSP, cuando el AI genera un link, entonces la tool lo rechaza e indica el mínimo.

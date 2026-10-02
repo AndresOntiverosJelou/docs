@@ -1,0 +1,31 @@
+---
+title: "Migración de Pago WebView y Pago Confirmación Externa"
+sidebarTitle: "Migración"
+description: "Ventana de deprecación de las tools nativas que reemplaza el MCP de cada proveedor."
+icon: "arrow-right-arrow-left"
+---
+
+Parte de [Reestructuración de pagos en el Marketplace](/specs/pagos-marketplace/resumen). Cubre cómo se retiran las tools nativas sin romper bots en producción.
+
+## Plan
+
+**Pago WebView** y **Pago Confirmación Externa** se retiran con una ventana de deprecación, no de un día para otro. Son bots que cobran dinero en producción.
+
+1. Desde el día 1 desaparecen de **Agregar tool** y del detalle de la integración. Nadie puede agregarlas a un agente nuevo.
+2. Los agentes que ya las tienen siguen funcionando. En el builder se muestra un aviso en la tool con el MCP del proveedor como reemplazo.
+3. Se levanta el inventario de bots que las usan. Con ese número se fija la fecha de corte y se contacta a cada company.
+4. En la fecha de corte se retiran de los agentes que aún las tengan.
+
+## Reemplazo
+
+El MCP del proveedor cubre ambas tools. Para Deuna, **Generar enlace de pago** devuelve su código y la confirmación llega por **Obtener estado del pedido** y por el webhook ([**10**](/specs/pagos-marketplace/pagos#después-del-pago)).
+
+## Criterios de aceptación
+
+- [ ] Dado un AI Agent nuevo, cuando se abre **Agregar tool**, entonces **Pago WebView** y **Pago Confirmación Externa** no aparecen.
+- [ ] Dado un agente que ya usa **Pago WebView**, cuando se abre en el builder durante la ventana, entonces la tool sigue funcionando y muestra el aviso con el MCP del proveedor como reemplazo.
+- [ ] Dado el inventario de bots afectados, cuando se fija la fecha de corte, entonces cada company afectada fue contactada antes de esa fecha.
+
+## Preguntas abiertas
+
+- **Fecha de corte.** Se fija cuando esté el inventario de bots que usan Pago WebView y Pago Confirmación Externa.
