@@ -50,7 +50,7 @@
               "specs/ejemplo",
               "specs/demos-kyc",
               {
-                "group": "Reestructuración de pagos en el Marketplace",
+                "group": "Revamp de pagos en el Marketplace",
                 "icon": "credit-card",
                 "pages": [
                   "specs/pagos-marketplace/resumen",
