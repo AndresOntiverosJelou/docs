@@ -352,7 +352,7 @@
           <div class="btn sec">Pasar a producción</div>
           <div class="btn dout">Eliminar integración</div>
           <div class="card">
-            <div class="row"><span class="l">{{wrench}}Tools</span><span class="v">3</span></div>
+            <div class="row"><span class="l">{{wrench}}Tools</span><span class="v">2</span></div>
             <div class="row"><span class="l">{{calendar}}Última actualización</span><span class="v">2 días</span></div>
             <div class="row"><span class="l">{{file-text}}<span class="v i">Documentación no disponible</span></span></div>
           </div>
@@ -371,8 +371,8 @@
             <span class="n" style="right:-11px;top:-11px">4</span>
             <div class="hl" style="inset:-6px"></div>
             <div class="tools">
-              <div class="t"><b>Generar enlace de pago</b><p>Genera un link de pago (o un código de pago, según el proveedor) para que el usuario complete una compra. Crea la orden en el core de pagos de Jelou y devuelve el link listo para enviar. Úsalo cuando el usuario ya confirmó qué va a pagar y por cuánto. El gateway, la empresa y el canal se resuelven automáticamente del contexto: no los pidas ni los inventes.</p></div>
-              <div class="t"><b>Obtener el estado del pedido</b><p>Consulta el estado de pago de una orden ya creada. Úsalo para saber si el cliente completó el pago (success), sigue pendiente, falló o fue cancelada. Requiere el id de la orden devuelto al generar el cobro.</p></div>
+              <div class="t"><b>Generar enlace de pago</b><p>Genera un link de pago (o un código de pago, según el proveedor) para que el usuario complete una compra. Crea el pedido en el core de pagos de Jelou y devuelve el link listo para enviar. Úsalo cuando el usuario ya confirmó qué va a pagar y por cuánto. El gateway, la empresa y el canal se resuelven automáticamente del contexto: no los pidas ni los inventes.</p></div>
+              <div class="t"><b>Obtener el estado del pedido</b><p>Consulta el estado de pago de un pedido ya creado. Úsalo para saber si el cliente completó el pago (success), sigue pendiente, falló o fue cancelado. Requiere el id del pedido devuelto al generar el cobro.</p></div>
             </div>
           </div>
           <div class="sub">Tools nativas</div>
@@ -380,7 +380,7 @@
             <span class="n" style="right:-11px;top:-11px;background:#F95A59">5</span>
             <div class="tools">
               <div class="t" style="position:relative"><div class="hl red" style="inset:4px"></div><b style="text-decoration:line-through;color:var(--n400)">Pago WebView</b><p style="text-decoration:line-through;color:var(--n400)">Pago WebView - Herramienta útil para realizar pagos aprovechando las capacidades nativas de los gateways</p></div>
-              <div class="t"><b>Pago Confirmación Externa</b><p>Procesa pagos con confirmación externa</p></div>
+              <div class="t" style="position:relative"><div class="hl red" style="inset:4px"></div><b style="text-decoration:line-through;color:var(--n400)">Pago Confirmación Externa</b><p style="text-decoration:line-through;color:var(--n400)">Procesa pagos con confirmación externa</p></div>
             </div>
           </div>
         </div>
@@ -392,7 +392,7 @@
 <ul class="legend">
   <li><span class="n">1</span><span>La instalación no cambia: <b>Conectar</b>, credenciales y <b>Pasar a producción</b> siguen igual.</span></li>
   <li><span class="n">4</span><span>Nueva sección <b>Tools para AI Agent</b> con la etiqueta <b>MCP</b> y las 2 tools que expone. Sin URL de MCP ni datos técnicos: eso queda por detrás.</span></li>
-  <li><span class="n" style="background:#F95A59">5</span><span><b>Pago WebView</b> se elimina de las tools nativas de todas las integraciones de pago.</span></li>
+  <li><span class="n" style="background:#F95A59">5</span><span><b>Pago WebView</b> y <b>Pago Confirmación Externa</b> se eliminan de las tools nativas: el MCP del proveedor las cubre.</span></li>
 </ul>
 
 <!-- =================================================================== -->
@@ -576,7 +576,7 @@
         </div>
         <div class="k" style="margin-top:16px">Obtener el estado del pedido · Parámetros (1)</div>
         <div class="wrap">
-          <div class="prow"><span class="pn">orderId <span class="req">*</span></span><span class="ty">string</span><span class="sel">{{sparkles:12}}IA{{chevron-down:12}}</span></div><div class="pdesc">Id de la orden devuelto al generar el cobro</div>
+          <div class="prow"><span class="pn">orderId <span class="req">*</span></span><span class="ty">string</span><span class="sel">{{sparkles:12}}IA{{chevron-down:12}}</span></div><div class="pdesc">Id del pedido devuelto al generar el cobro</div>
         </div>
       </div>
     </div>
