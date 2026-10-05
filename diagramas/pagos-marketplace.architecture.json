@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Revamp de pagos: un MCP por pasarela instalada",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "apps",
+      "type": "frontend",
+      "label": "jelou-apps",
+      "sublabel": "Marketplace · Builder · Pagos",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "React"
+    },
+    {
+      "id": "mkp",
+      "type": "backend",
+      "label": "marketplace-service",
+      "sublabel": "catálogo e instalaciones",
+      "pos": [
+        320,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "NestJS"
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "workflow-engine-service",
+      "sublabel": "runtime del AI Agent",
+      "pos": [
+        40,
+        290
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "mcp",
+      "type": "cloud",
+      "label": "MCP de pagos",
+      "sublabel": "un deploy, N apps",
+      "pos": [
+        320,
+        290
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Deno Deploy"
+    },
+    {
+      "id": "jp",
+      "type": "backend",
+      "label": "jelou-payments",
+      "sublabel": "apps, órdenes y config",
+      "pos": [
+        600,
+        290
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Laravel"
+    },
+    {
+      "id": "cps",
+      "type": "backend",
+      "label": "chat-payments-service",
+      "sublabel": "orquestador de PSPs",
+      "pos": [
+        880,
+        290
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "Lambda"
+    },
+    {
+      "id": "psp",
+      "type": "external",
+      "label": "PSP",
+      "sublabel": "Wompi, Mercado Pago, Deuna…",
+      "pos": [
+        880,
+        480
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Marketplace",
+      "wraps": [
+        "mkp",
+        "mcp"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Core de pagos",
+      "wraps": [
+        "jp",
+        "cps"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "apps-install",
+      "from": "apps",
+      "to": "mkp",
+      "label": "instala",
+      "variant": "emphasis"
+    },
+    {
+      "id": "mkp-bootstrap",
+      "from": "mkp",
+      "to": "jp",
+      "label": "bootstrap",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "engine-installation",
+      "from": "engine",
+      "to": "mkp",
+      "label": "instalación",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "engine-tool-call",
+      "from": "engine",
+      "to": "mcp",
+      "label": "tool call",
+      "variant": "emphasis"
+    },
+    {
+      "id": "mcp-core",
+      "from": "mcp",
+      "to": "jp",
+      "label": "crea la orden",
+      "variant": "emphasis"
+    },
+    {
+      "id": "jp-cps",
+      "from": "jp",
+      "to": "cps",
+      "label": "genera link",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cps-psp",
+      "from": "cps",
+      "to": "psp",
+      "label": "link de pago",
+      "variant": "emphasis",
+      "labelDy": 60,
+      "labelDx": 48
+    },
+    {
+      "id": "psp-webhook",
+      "from": "psp",
+      "to": "cps",
+      "label": "webhook",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "right"
+    },
+    {
+      "id": "cps-confirm",
+      "from": "cps",
+      "to": "jp",
+      "label": "confirmación",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    },
+    {
+      "id": "jp-resume",
+      "from": "jp",
+      "to": "engine",
+      "label": "retoma al agente",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Al instalar",
+      "items": [
+        "La app de la pasarela pasa a ser tipo MCP con 2 tools",
+        "Credenciales y entorno quedan en la instalación, nunca en la tool"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "En la conversación",
+      "items": [
+        "El agente manda amount y concept; el resto viaja en headers",
+        "El core resuelve proveedor, moneda, IVA y expiración"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Tras el pago",
+      "items": [
+        "El webhook del PSP cierra la orden en jelou-payments",
+        "El core retoma la ejecución del agente con el resultado"
+      ]
+    }
+  ]
+}

@@ -57,7 +57,8 @@
                   "specs/pagos-marketplace/marketplace",
                   "specs/pagos-marketplace/ai-agent",
                   "specs/pagos-marketplace/pagos",
-                  "specs/pagos-marketplace/migracion"
+                  "specs/pagos-marketplace/migracion",
+                  "specs/pagos-marketplace/arquitectura"
                 ]
               }
             ]

@@ -1,0 +1,94 @@
+---
+title: "Arquitectura técnica del revamp"
+sidebarTitle: "Arquitectura"
+description: "Qué repos toca el revamp, cómo se conectan y los hallazgos del código que condicionan el diseño."
+---
+
+import { DiagramViewer } from "/snippets/diagram-viewer.jsx";
+import { pagosMarketplaceLight, pagosMarketplaceDark } from "/snippets/diagramas/pagosMarketplace.jsx";
+
+Parte de [Revamp de pagos en el Marketplace](/specs/pagos-marketplace/resumen). Resume lo que hay que tocar en cada repo para cumplir los ítems **1** a **10**. Sale de leer el código actual de `marketplace-service`, `marketplace-apps`, `jelou-apps`, `jelou-payments` y `workflow-engine-service`.
+
+## Arquitectura
+
+<DiagramViewer light={pagosMarketplaceLight} dark={pagosMarketplaceDark} alt="Repos del revamp de pagos: jelou-apps, marketplace-service, MCP de pagos, workflow-engine-service, jelou-payments, chat-payments-service y PSP" />
+
+La idea central: **un solo servidor MCP de pagos**, desplegado una vez, que recibe por headers a qué instalación pertenece la llamada. Cada pasarela del catálogo pasa a ser una app tipo MCP que apunta a ese servidor. No hace falta un deploy por proveedor.
+
+## Cómo funciona
+
+### Al instalar (ítems 1 a 3)
+
+1. `jelou-apps` instala la pasarela como hoy, con `POST /auth-apps/request` de `marketplace-service`.
+2. `marketplace-service` crea la instalación y hace el bootstrap de la app y el gateway en `jelou-payments`. Guarda moneda, IVA, país y entorno en los metadatos de la credencial. Esto ya pasa hoy para todas las pasarelas, incluidas Stripe y Conekta.
+3. Lo nuevo: la app de la pasarela ya es tipo `MCP`, con `aiAgentAccessEnabled` y sus 2 tools. Al instalarla, el builder la lista bajo **Integraciones MCP** sin ningún paso extra.
+
+### En la conversación (ítems 6 a 8)
+
+1. El AI Agent carga las tools de la instalación y se conecta al MCP de pagos. En los headers viajan `executionId`, `nodeId`, `botId`, el número del bot y los metadatos de la credencial (`x-metadata`). Todo esto ya lo envía el engine hoy.
+2. El MCP recibe `amount` y `concept`, arma la orden con el proveedor, moneda, IVA y expiración que vienen en el contexto, y llama a `jelou-payments` (`generate_payment_link`). Guarda `execution_id`, `node_id` y `bot_id` en los metadatos de la orden.
+3. `jelou-payments` resuelve las credenciales de la pasarela de la company y pide el link a `chat-payments-service`, que habla con el PSP.
+4. **Obtener estado del pedido** consulta `GET /orders/{orderId}/status` en el core.
+
+### Tras el pago (ítems 9 y 10)
+
+1. El PSP notifica a `chat-payments-service`, que confirma la orden en `jelou-payments` con el webhook firmado que ya existe.
+2. `jelou-payments` cierra la orden y, si tiene `execution_id`, llama al engine para retomar la ejecución con el resultado del pago.
+3. El engine retoma la ejecución si sigue viva o crea una nueva con el historial del agente, y el agente responde sin que el usuario escriba.
+
+## Qué cambia en cada repo
+
+| Repo | Cambio | Tamaño |
+| --- | --- | --- |
+| `marketplace-apps` | Reducir el MCP de Jelou Payments a 2 tools y quitar el formulario de instalación | Medio |
+| `marketplace-service` | Convertir las apps de pago en MCP, registrar sus 2 tools, endpoint para editar la config de la pasarela | Medio |
+| `jelou-payments` | Guardar `execution_id` en la orden, expirar links, job que llama al engine al confirmar | Medio |
+| `workflow-engine-service` | Aceptar el resultado del pago como contexto al retomar, aviso de deprecación por tool | Chico |
+| `jelou-apps` | Modal **Configurar**, sección **Tools para AI Agent (MCP)**, ocultar las tools nativas retiradas | Chico |
+| Datos | Retirar Jelou Payments del catálogo, borrar las integraciones de Pago WebView y Pago Confirmación Externa | Chico |
+
+### marketplace-apps
+
+- Partir de la rama `feat/payments-mcp` (la remota, que va adelante de la local). Ese MCP ya resuelve proveedor, credenciales, entorno, `executionId` y bot desde el contexto, y ya traduce las credenciales de los 10 proveedores a lo que espera `chat-payments-service`.
+- Dejar solo **Generar enlace de pago** (`amount`, `concept`) y **Obtener estado del pedido** (`orderId`). Hoy hay 3 tools y la de link pide `type`, `client`, `tax_included`, split y `order_details`.
+- Quitar el formulario de instalación (`auth_mode_details.json`): proveedor, token del core, moneda, IVA y país llegan en `x-metadata` desde la instalación. Hoy el id del gateway está fijo en el código y debe venir del backend.
+- Agregar `integrations.json` con las 2 tools para que el Marketplace las muestre en el detalle.
+
+### marketplace-service
+
+- Marcar cada app de pago como `type = MCP` con `aiAgentAccessEnabled` y una fila `mcp_apps` apuntando a la URL del MCP de pagos. Varias apps pueden compartir la URL. Con eso, el builder ya las muestra bajo **Integraciones MCP** sin cambios en el frontend.
+- Las 2 tools se registran por app. El slug de `mcp_tools` es único global, así que hay que prefijarlo por proveedor (`wompi_generate_payment_link`) o relajar la unicidad a `appId + slug` y guardar aparte el nombre real de la tool.
+- El gancho para crear el MCP al instalar es el helper por el que ya pasan todas las instalaciones de pago. Si las apps ya son MCP, basta con que la instalación exista.
+- Nuevo endpoint para editar moneda, IVA, país y expiración de una instalación. Hoy solo se escriben al instalar. Agregar `expiration` a los metadatos de la credencial con default 30 minutos.
+- Borrar las filas de `integrations` que enlazan Pago WebView y Pago Confirmación Externa a cada pasarela. Conservar las que solo cargan secretos.
+
+### jelou-payments
+
+- `generate_payment_link` recibe el input crudo. Validar y guardar `execution_id`, `node_id`, `bot_id` y el número del bot en `orders.metadata`. No hace falta migración: ya guarda `bot_id`, `skill_id` y `provider` ahí.
+- No existe expiración de órdenes `in_chat`: no hay `expires_at`, no hay estado `expired` y el job horario de estados las salta. Hay que pasar la expiración a `chat-payments-service` y expirar las pendientes.
+- Nuevo job al confirmar la orden que llame al engine con `execution_id`. El modelo es el job `JelouSkill` actual, que ya hace un callback al bot pero con la API vieja de skills. Necesita idempotencia porque la confirmación puede llegar dos veces.
+- El `PATCH /orders/{order}` externo no dispara webhooks ni tiene auth. Si el agente va a confiar en esa confirmación, hay que cerrarlo.
+
+### workflow-engine-service
+
+- El endpoint se llama `POST /v1/resume-or-recreate-conversation` y hoy solo acepta `message`, que el agente lee como un turno del usuario. Hay que agregar el resultado del pago como contexto de sistema. Ya existe `POST /v1/payments/confirmations`, que inyecta ese contexto pero no recrea la ejecución si expiró. Lo más corto es combinar los dos.
+- Si el core necesita el tipo de bot o el canal, se agregan al builder de headers del MCP. `executionId`, `nodeId`, `botId` y el número ya viajan.
+- No hay metadata `deprecated` por tool. El aviso de Pago WebView se agrega en la carga de tools externas, siguiendo el patrón del aviso de modelos deprecados.
+- No hay inventario de qué agentes usan una tool. Se saca con una consulta a los nodos `AI_TASK` por `toolId`.
+
+### jelou-apps
+
+- **Agregar tool** ya filtra por `app.type = MCP` y `aiAgentAccessEnabled`. Si el backend usa un tipo nuevo, se extiende ese filtro y el tipo en `mcp.types.ts`.
+- En el detalle de la integración, renombrar el bloque **Tools externas** a **Tools para AI Agent (MCP)** para pasarelas y ocultar el bloque de tools nativas.
+- **Configurar** en **Pagos → Integraciones** hoy solo navega al detalle. Falta el modal, que puede reusar los helpers de país, moneda e IVA de `payment-routing.ts` y guardar con el endpoint nuevo.
+- Agregar Datafast y Nuvei a la lista de pasarelas del hub de Pagos. Hoy faltan.
+
+## Hallazgos que condicionan el diseño
+
+- **La tool actual no devuelve el link.** Por diseño responde solo `order_id`, `total` y `currency`, porque la plataforma ya manda el link al canal. El ítem **7** dice que la tool devuelve el link. Hay que decidir cuál de los dos comportamientos queda.
+- **Hay inputs que la spec no contempla.** Mercado Pago, Nuvei, Conekta y Datafast exigen el email del pagador. PayPal, Conekta, Datafast y Payphone exigen un token de workflow. O el backend los resuelve, o se suman a los inputs de la tool.
+- **Las credenciales no llegan al MCP.** El gateway del Marketplace solo reenvía los metadatos de la credencial, nunca el token ni los secretos. La vía corta es que el MCP mande solo el token y el app id del core, y que `jelou-payments` resuelva las credenciales de la pasarela con `GET /apps/{id}/gateways`, que ya es el mecanismo BYOK.
+- **Dónde vive la config del comercio.** Moneda, IVA y país ya están en los metadatos de la credencial de `marketplace-service` y el MCP ya los lee de ahí. Lo más simple es que la config del ítem **9** viva ahí, con expiración como campo nuevo, y no duplicarla en `jelou-payments`, donde hoy solo existe `currency` dentro del JSON de credenciales.
+- **Probar con Jelou.** En `marketplace-service` es `environment = demo`: salta la validación de credenciales y no guarda secretos. En `jelou-payments` no hay marca de sandbox de Jelou frente a BYOK, y **Pasar a producción** solo funciona para Stripe. Hay que definir cómo el core sabe que debe usar las credenciales sandbox de Jelou.
+- **Pago WebView y Pago Confirmación Externa no están en código.** Son tools del builder guardadas en base, enlazadas desde `integrations` del Marketplace. Sus 13 parámetros son inputs de esa tool. Retirarlas es un cambio de datos, no de código, y por eso no hay flag de deprecación ni inventario listos.
+- **Stripe.** Su MCP actual habla con Stripe directo y devuelve un `client_secret`, no un link. El MCP de 2 tools para Stripe sale del MCP de pagos, no de ese.
